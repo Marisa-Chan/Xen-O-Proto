@@ -1,0 +1,54 @@
+mdlr:
+00000000 4C 41 4E 52  │  45 53 20 56  │  31 2E 30 1A  │  28 F3 31 01    LANRES V1.0.(.1.
+	 +---------------HEADER MAGIC--------------+     ???????????
+
+00000010 00 00 00 00  │  02 00 00 00  │  28 00 00 00  │  E8 06 00 00    ........(.......
+         ???????????   +-Num locales-+ +LCIDs offsets+  +Strings count+
+	                (num of LCIDS)
+
+00000020 30 00 00 00  │  D0 1B 00 00  │  09 04 00 00  │  18 04 00 00    0...............
+         +hash table+  +-Lcid offsets-+   +---LCID0--------LCID1-----+
+	    offset       
+
+Find string by STRID:
+1. Get strid from client, for example - INFO_ITS_SPEND
+2. Get hash with this:
+
+def hsh(b):
+	v = 5381
+	for a in b.encode("ascii"):
+		v = (33 * v + a) & 0xFFFFFFFF
+	return v
+
+INFO_ITS_SPEND = 0xc09b7a39
+
+3. Go to hash table offset (0x30 in example file),
+   and find what index number for this hash.
+   Every hash 4 bytes.
+   Number of hashes == Strings count
+   Hash table size in bytes 0x6e8 * 4 = 0x1BA0
+   Hash table for this example [0x30...0x1BD0)
+   Index for 0xc09b7a39 is 0x4C8
+
+4. Select needed LCID (LCID is locale ID. 0x409 is EU and windows-1252 codepage)
+   For example Selected LCID Index = 0 for EU
+   
+5. Go to LCID offsets + ((4 * Strings count) * Selected LCID Index):
+   
+   STRTBL = 0x1BD0 + (4 * (0x6E8) * 0) -> needed string offset table [0x1BD0...0x3770)
+   
+6. Add 4 * hash index to STRTBL:
+   STROFF = 0x1BD0 + 4 * 0x4C8
+   =0x2EF0
+
+7. Get offset value from 0x2EF0 offset:
+   0xB160
+
+8. Now you can get needed string from 0xB160 offset:
+
+   0000B160 0F 43 6F 6E │ 73 75 6D 61 │ 62 6C 65 20 │ 49 74 65 6D .Consumable Item
+   
+   First byte     0x0F - size of string
+   
+   INFO_ITS_SPEND -> Consumable Item
+
