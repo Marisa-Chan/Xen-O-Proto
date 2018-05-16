@@ -52,9 +52,15 @@
 ******************************PAKETS*********************************
 ;#####PACKETS#######
 ;Generator	pkt(sub)	DataLength
+;Flags: xxxx
 ;Description
 ;	Decode
 ;.....
+
+;Flags:
+;	? - Activate this flag in some cases
+;	E - Recalc effects of buffs/items
+;
 
 
 *****************************SERVER->CLIENT**********************************
@@ -346,6 +352,7 @@ Failed to receive a gift msg or ???
 
 
 SERVER	0xC0(0x40)	2 + n*6
+Flags:	E
 Set buff/debuff effects  (skill type >= 0x20 and < 0x2A)
 	[0]		Subtype 0x40
 	[1]		Num buffs
@@ -354,18 +361,21 @@ Set buff/debuff effects  (skill type >= 0x20 and < 0x2A)
 
 
 SERVER	0xC0(0x41)	3
+Flags:	E
 Renew/Add buff/debuff with full time
 	[0]		Subtype 0x41
 	[1][2]L		SkillID
 
 
 SERVER	0xC0(0x42)	3
+Flags:	E
 Delete buff/debuff
 	[0]		Subtype 0x42
 	[1][2]L		SkillID
 
 
 SERVER	0xC0(0x43)	7
+Flags:
 Set buff time ( type >=0x23 and <0x25 ) (d'not touch skill slots in client)
 	[0]		Subtype 0x43
 	[1][2]L		SkillID
@@ -373,6 +383,7 @@ Set buff time ( type >=0x23 and <0x25 ) (d'not touch skill slots in client)
 
 
 SERVER	0xC0(0x44)	7
+Flags:
 Add/renew buff ( type >=0x20 and <0x2A ) (d'not touch skill slots in client)
 	[0]		Subtype 0x44
 	[1][2]L		SkillID
@@ -380,9 +391,10 @@ Add/renew buff ( type >=0x20 and <0x2A ) (d'not touch skill slots in client)
 
 
 SERVER  0xC0(0x45)	26+
+Flags: E?
 ?????????
 	[0]		Subtype 0x45
-	[1]			?????
+	[1]			?????	if == 2 or 18 -> Flag: E 
 	[ 2][ 3][ 4][ 5]L	?????
 	[ 6][ 7][ 8][ 9]L	?????
 	[10][11][12][13]L	?????
@@ -396,6 +408,7 @@ SERVER  0xC0(0x45)	26+
 
 
 SERVER  0xC0(0x46)	28+
+Flags:
 ?????????
 	[0]		Subtype 0x46
 	[1]			?????
@@ -554,6 +567,38 @@ Set map ??? points list???
 	...
 
 
+SERVER  0xC0(0x71)	9
+Add ??? point first to list???
+	[0]		Subtype 0x71
+	[1]..8bt..[8]	WarpPos point
+
+
+SERVER  0xC0(0x73)	2
+Delete ??? point by index
+	[0]		Subtype 0x73
+	[1]		Index of WarpPos to delete
+
+
+SERVER  0xC0(0x74)	2
+Move ??? point by 1 to list start
+	[0]		Subtype 0x74
+	[1]		Index of WarpPos to move
+
+
+SERVER  0xC0(0x75)	2
+Move ??? point by 1 to list end
+	[0]		Subtype 0x75
+	[1]		Index of WarpPos to move
+
+
+SERVER  0xC0(0x80)	10+
+Keeping Items Window (store/withdraw)
+For deposit/withdraw kron player must have 3450 skill buff - Kron Saving Buff
+	[0]		Subtype 0x80
+	[1]..8bt..[8]	Kron amount in keep
+	[9]		Count of items in keep
+	[+8] * num	ItemSlot
+	...
 
 
 
