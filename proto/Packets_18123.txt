@@ -13,17 +13,17 @@
 ;Character view description
 ;	[0]		prof wear?????
 ;	[1]		????	
-;	[2]		????
-;	[3]		hair color + style?
-;	[4]		hat?????
-;	[5]		neck assess????
-;	[6]		????
-;	[7]		????
-;	[8]		????
-;	[9]		????
+;	[2]		mount or kigurumi
+;	[3]		hair color + style?   (0-2, 10-12, 20-22)
+;	[4]		hat 
+;	[5]		scarf (only 12 ID?)
+;	[6]		shield
+;	[7]		weapon
+;	[8]		glasses (ID 3 only?)
+;	[9]		backpack
 ;	[10][11]L	effect id??
-;	[12]		????
-;	[13]		????
+;	[12]		left hand aura effect
+;	[13]		right hand aura effect
 
 ;ItemSlot struct
 ;	[0][1]L		Item ID
@@ -165,6 +165,20 @@ Change character view
 	[1]		Scope ID == 1 
 	[2][3]L		MAP obj ID
 	[4]...[18]	character view
+
+
+SERVER	0xC0(1)		9
+Flags:	E
+Set player kron
+	[0]		Subtype 0x1
+	[1]....[8]L	Kron (64bit)
+
+
+SERVER	0xC0(2)		2
+Flags:	E
+Set allow/disable bits(forms/party/etc)
+	[0]		Subtype 0x2
+	[1]		Bits (1,2,8,0x20)
 
 
 SERVER	0xC0(3)		2
@@ -429,6 +443,7 @@ Flags:
 
 
 SERVER	0xC0(0x47)	2+
+Flags:
 % s is the item is damaged during repair.
 	[0]		Subtype 0x47
 	[1]		Number of items
@@ -437,6 +452,7 @@ SERVER	0xC0(0x47)	2+
 
 
 SERVER	0xC0(0x4A)	10
+Flags: E
 Get item in party/lot/automat
 	[0]		Subtype 0x4A
 	[1]		0 - automat, 1 - lot, 2 - normal add, 0xb0 - only chat msg(??party get??), 0xd0 - add item without chat log
@@ -444,12 +460,14 @@ Get item in party/lot/automat
 
 
 SERVER	0xC0(0x4B)	3
+Flags:
 You purchased %s item. Popup msg only, no real item added??
 	[0]		Subtype 0x4B
 	[1][2]L		Item ID(shop items??) gipkginf items
 
 
 SERVER	0xC0(0x4C)	3
+Flags: E
 Spent/deliver item in party
 	[0]		Subtype 0x4C
 	[1]		0 - delete item without chatlog, 0xD0 - deliver msg(msg for type <0x20), 0xD1 - Discarded msg, 0xD2 - Deleted msg, 0xD3 - Used msg
@@ -457,11 +475,13 @@ Spent/deliver item in party
 
 
 SERVER  0xC0(0x4D)	1
+Flags:
 You have purchased the listed items. Popup msg
 	[0]		Subtype 0x4D
 
 
 SERVER  0xC0(0x50)	2+
+Flags: E
 Set avaliable skills
 	[0]		Subtype 0x50
 	[1]		Skills number
@@ -470,97 +490,114 @@ Set avaliable skills
 
 
 SERVER  0xC0(0x51)	3
+Flags: E
 Learn(with chatlog)/Delete skill
 	[0]		Subtype 0x51
 	[1][2]L		SkillID
 
 
 SERVER  0xC0(0x52)	2
+Flags: E
 Set ???? of player
 	[0]		Subtype 0x52
 	[1]		?????
 
 
 SERVER  0xC0(0x60)	9
+Flags: E
 Equip/unequip coat
 	[0]		Subtype 0x60
 	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
 
 
 SERVER  0xC0(0x61)	9
+Flags: E
 Equip/unequip helm
 	[0]		Subtype 0x61
 	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
 
 
 SERVER  0xC0(0x62)	9
+Flags: E
 Equip/unequip glasses
 	[0]		Subtype 0x62
 	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
 
 
 SERVER  0xC0(0x63)	9
+Flags: E
 Equip/unequip mask
 	[0]		Subtype 0x63
 	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
 
 
 SERVER  0xC0(0x64)	9
+Flags: E
 Equip/unequip shield
 	[0]		Subtype 0x64
 	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
 
 
 SERVER  0xC0(0x65)	9
+Flags: E
 Equip/unequip weapon
 	[0]		Subtype 0x65
 	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
 
 
 SERVER  0xC0(0x66)	9
+Flags: E
 Equip/unequip cape
 	[0]		Subtype 0x66
 	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
 
 
 SERVER  0xC0(0x67)	9
+Flags: E
 Equip/unequip gloves
 	[0]		Subtype 0x67
 	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
 
 
 SERVER  0xC0(0x68)	9
+Flags: E
 Equip/unequip boots
 	[0]		Subtype 0x68
 	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
 
 
 SERVER  0xC0(0x69)	9
+Flags: E
 Equip/unequip trinket1
 	[0]		Subtype 0x69
 	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
 
 
 SERVER  0xC0(0x6A)	9
+Flags: E
 Equip/unequip trinket2
 	[0]		Subtype 0x6A
 	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
 
 
 SERVER  0xC0(0x6B)	9
+Flags: E
 Equip/unequip trinket3
 	[0]		Subtype 0x6B
 	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
 
 
 SERVER  0xC0(0x6E)	3
+Flags: E
 Set backpack item ID
 	[0]		Subtype 0x6E
 	[1][2]L		Backpack item ID
 
 
 SERVER  0xC0(0x70)	2+
+Flags: E
 Set map ??? points list???
+PS: Looks like this functiona only for old solstice
 	[0]		Subtype 0x70
 	[1]		Number of warp points
 	[+8] * num	WarpPos points
@@ -568,30 +605,39 @@ Set map ??? points list???
 
 
 SERVER  0xC0(0x71)	9
+Flags: E
 Add ??? point first to list???
+PS: Looks like this functiona only for old solstice
 	[0]		Subtype 0x71
 	[1]..8bt..[8]	WarpPos point
 
 
 SERVER  0xC0(0x73)	2
+Flags:
 Delete ??? point by index
+PS: Looks like this functiona only for old solstice
 	[0]		Subtype 0x73
 	[1]		Index of WarpPos to delete
 
 
 SERVER  0xC0(0x74)	2
+Flags:
 Move ??? point by 1 to list start
+PS: Looks like this functiona only for old solstice
 	[0]		Subtype 0x74
 	[1]		Index of WarpPos to move
 
 
 SERVER  0xC0(0x75)	2
+Flags:
 Move ??? point by 1 to list end
+PS: Looks like this functiona only for old solstice
 	[0]		Subtype 0x75
 	[1]		Index of WarpPos to move
 
 
 SERVER  0xC0(0x80)	10+
+Flags: E
 Keeping Items Window (store/withdraw)
 For deposit/withdraw kron player must have 3450 skill buff - Kron Saving Buff
 	[0]		Subtype 0x80
@@ -599,6 +645,58 @@ For deposit/withdraw kron player must have 3450 skill buff - Kron Saving Buff
 	[9]		Count of items in keep
 	[+8] * num	ItemSlot
 	...
+
+
+SERVER  0xC0(0x81)	9
+Flags: E
+Update amount of krons in store. Only for openned Keeping Items Window
+	[0]		Subtype 0x81
+	[1]..8bt..[8]	Kron amount in keep
+
+
+SERVER  0xC0(0x82)	9
+Flags: E
+Move ItemSlot into keep from invenotory. Use only for openned Keeping Items Window
+	[0]		Subtype 0x81
+	[1]..8bt..[8]	ItemSlot adding to keep
+
+
+SERVER  0xC0(0x83)	9
+Flags: E
+Move ItemSlot from keep into inventory.  Use only for openned Keeping Items Window
+Chat msg: Found %% of %%
+	[0]		Subtype 0x81
+	[1]..8bt..[8]	ItemSlot adding to inventory
+
+
+SERVER  0xC0(0x84)	3+
+Flags: E
+House Keeping Items Window
+	[0]		Subtype 0x84
+	[1]		Form caption number ( House Keeping  Items (%d) )
+	[2]		Number of items in house
+	[+8] * num
+
+
+SERVER  0xC0(0x85)	9
+Flags: E
+Move ItemSlot into house keep from invenotory. Use only for openned house Keeping Items Window
+	[0]		Subtype 0x85
+	[1]..8bt..[8]	ItemSlot adding to house keep
+
+
+SERVER  0xC0(0x88)	9
+Flags: E
+Move ItemSlot from house keep into invenotory. Use only for openned house Keeping Items Window
+	[0]		Subtype 0x88
+	[1]..8bt..[8]	ItemSlot adding to inventory
+
+
+SERVER  0xC0(0x8A)	2
+Flags:
+SetOwnerMode (for furniture?)
+	[0]		Subtype 0x8A
+	[1]		Owner mode
 
 
 
