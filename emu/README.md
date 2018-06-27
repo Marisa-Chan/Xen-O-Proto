@@ -6,3 +6,22 @@ All this servers must be runned for client connect
 - serv18124: ???
 
 For old client pre-Reborn: old_sos
+
+**Launch client:** 
+
+- XenOnline DXRender.exe/GLRender.exe:
+
+* -I server_ip
+* -ID ?
+* -PW ?
+* -PT ?
+
+- Reborn DXRender.exe/GLRender.exe:
+
+* -OSK_SERVER server_ip
+* -OSK_TOKEN ?
+* -OSK_STORE ?
+* -ID ?
+* -PW ?
+* -PT ?
+ 
