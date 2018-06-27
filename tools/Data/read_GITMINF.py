@@ -56,26 +56,27 @@ while i < len(c):
 	itemID  = int.from_bytes(c[i  :i+4], "little")
 	itemOff = int.from_bytes(c[i+4:i+8], "little")
 	
-	itmInf = decodeItem(b, itemOff)
+	if itemOff < off:
+		itmInf = decodeItem(b, itemOff)
 	
-	###print detected item fields
+		###print detected item fields
 	
-	title = ""
-	descr = ""
-	price = int.from_bytes(itmInf[0xF:0xF + 4], "little")
+		title = ""
+		descr = ""
+		price = int.from_bytes(itmInf[0xF:0xF + 4], "little")
 	
-	if itmInf[0x3D]:
-		title = itmInf[0x3E : 0x3E + itmInf[0x3D] ].decode("cp949")
+		if itmInf[0x3D]:
+			title = itmInf[0x3E : 0x3E + itmInf[0x3D] ].decode("cp949")
 	
-	descrOff = 0x3E + itmInf[0x3D]
-	if itmInf[descrOff]:
-		descr = itmInf[descrOff + 1 : descrOff + 1 + itmInf[descrOff] ].decode("cp949")
+		descrOff = 0x3E + itmInf[0x3D]
+		if itmInf[descrOff]:
+			descr = itmInf[descrOff + 1 : descrOff + 1 + itmInf[descrOff] ].decode("cp949")
 	
-	print(itemID)
-	print(title)
-	print("SellPrice: ", price)	
-	print(descr)
-	print("")
+		print(itemID)
+		print(title)
+		print("SellPrice: ", price)	
+		print(descr)
+		print("")
 	i += 8
 
 
