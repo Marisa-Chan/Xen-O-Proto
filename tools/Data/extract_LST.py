@@ -116,12 +116,12 @@ for i in itms:
                 while xx < pw:
     
                     t = itm[8 + (pxid + (yy * pw + xx)) * 2 + 1]
-                    r = t & 0xF0
-                    g = (t << 4) & 0xF0
+                    r = ((t >> 4) & 0xF) * 17
+                    g = ((t & 0xF)) * 17
 
                     t = itm[8 + (pxid + (yy * pw + xx)) * 2]
-                    b = t & 0xF0
-                    aa = (t << 4) & 0xF0
+                    b = ((t >> 4) & 0xF) * 17
+                    aa = ((t & 0xF)) * 17
 
                     pix[(xpg << 8) + xx, (ypg << 8) + yy] = (r, g, b, aa)
                     xx += 1
