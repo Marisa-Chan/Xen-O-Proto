@@ -8,7 +8,7 @@ def decodeItem(data, off):
 	
 	d = None
 	
-	if b[off+8] == 1:
+	if data[off+8] == 1:
 		d = bytearray(zlib.decompress(data[off+9 : off+9+compsz]))
 	else:
 		d = bytearray(data[off+9 : off+9+decsz])
