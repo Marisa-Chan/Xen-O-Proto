@@ -2,6 +2,7 @@
 Xen Online/Sos packets research project
 
 **Directories**
+
 - emu: basic python3 server emulator for testing packets recieve/send
 - lookup: examined ids, for easy testing
 - proto: packets and structures descriptions
@@ -9,6 +10,7 @@ Xen Online/Sos packets research project
 
 
 **Game clients**
+
 magnet:?xt=urn:btih:44087d519c9c4ddd50b76e9f183a7e151bad18ae&dn=XenOnline
 
 - XenOnlineInstall_20110721.exe
