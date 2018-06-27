@@ -11,7 +11,7 @@ Xen Online/Sos packets research project
 
 **Game clients**
 
-magnet:?xt=urn:btih:44087d519c9c4ddd50b76e9f183a7e151bad18ae&dn=XenOnline
+[Magnet](magnet:?xt=urn:btih:44087d519c9c4ddd50b76e9f183a7e151bad18ae&dn=XenOnline)
 
 - XenOnlineInstall_20110721.exe
 - SolsticeReborn-10.0.113a.BT.rebornBTMarketplace.exe
