@@ -61,6 +61,11 @@
 ;	[6][7]L		Y pos
 
 
+;NPCName
+; In XenOnline - it's integer string with ID of NPC name, because it's multilanguage.
+; In Reborn - it's real name string with first special characters: ! @ % # $
+; Like: "!Salad" - it will be purple "Salad". And "Salad" will be green "Salad"
+
 
 ******************************PAKETS*********************************
 ;#####PACKETS#######
@@ -101,7 +106,7 @@ Create NPC
 	[16][17]L	X
 	[18][19]L	Y
 	[20]		Name len
-	[21]...		Name string. Name must be STRING like "1", "661". Real name will be readed from GameSvrNpc.mdlr
+	[21]...		Name string. NPCName. Multilang: Name must be STRING like "1", "661". Real name will be readed from GameSvrNpc.mdlr
 
 
 SERVER  0xB2(0x03)	25+
@@ -124,7 +129,7 @@ P.S.: NPC doesn't have go animation???
 	[20][21]L	X dst
 	[22][23]L	Y dst
 	[24]		Name len
-	[25]...		Name string. Name must be STRING like "1", "661". Real name will be readed from GameSvrNpc.mdlr
+	[25]...		Name string. NPCName. Multilang: Name must be STRING like "1", "661". Real name will be readed from GameSvrNpc.mdlr
 	
 
 SERVER	0xB3		7
