@@ -34,11 +34,6 @@ def mkName(z, id):
     else:
         return nm + ".DRA"
 
-if len(sys.argv) != 2:
-    print("Usage: " + sys.argv[0] + " FILENAME")
-    print("Example: " + sys.argv[0] + " GPBMP")
-    exit()
-
 nm = "GTEXC"
 
 itms = list()
