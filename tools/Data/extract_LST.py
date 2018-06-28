@@ -65,8 +65,17 @@ a = None
 
 jj = 0
 
+valspd = bytearray(16)
+while jj < 16:
+    valspd[jj] = jj * 17
+    jj += 1
+
+jj = 0
+
 if not (os.path.isdir(nm)):
     os.mkdir(nm)
+
+pix = bytearray(1024 * 1024 * 4)
 
 for i in itms:
     nd = mkName(nm, i.arr)
@@ -88,8 +97,7 @@ for i in itms:
     w = itm[0] | (itm[1] << 8)
     h = itm[2] | (itm[3] << 8)
 
-    img = pimg.new('RGBA', (w,h))
-    pix = img.load()
+    
 
     xpages = (w + 0xFF) >> 8
     ypages = (h + 0xFF) >> 8
@@ -113,17 +121,28 @@ for i in itms:
             yy = 0
             while yy < ph:
                 xx = 0
+
+                outof = ( ( h - ((ypg << 8) + yy) - 1 ) * w  +  (xpg << 8) ) * 4
+                inof = 8 + (pxid + (yy * pw)) * 2
+				
                 while xx < pw:
     
-                    t = itm[8 + (pxid + (yy * pw + xx)) * 2 + 1]
-                    r = ((t >> 4) & 0xF) * 17
-                    g = ((t & 0xF)) * 17
+                    t = itm[inof + 1]
+                    r = valspd[(t >> 4) & 0xF]
+                    g = valspd[(t & 0xF)]
 
-                    t = itm[8 + (pxid + (yy * pw + xx)) * 2]
-                    b = ((t >> 4) & 0xF) * 17
-                    aa = ((t & 0xF)) * 17
+                    t = itm[inof]
+                    b = valspd[(t >> 4) & 0xF]
+                    aa = valspd[(t & 0xF)]
 
-                    pix[(xpg << 8) + xx, (ypg << 8) + yy] = (r, g, b, aa)
+                    pix[outof] = r
+                    pix[outof + 1] = g
+                    pix[outof + 2] = b
+                    pix[outof + 3] = aa
+					
+                    outof += 4
+                    inof += 2
+					
                     xx += 1
                 yy += 1
     
@@ -140,8 +159,12 @@ for i in itms:
     if jj % 2000 == 0:
         if not (os.path.isdir(nm + "/" + str(dr))):
             os.mkdir(nm + "/" + str(dr))
+	
+    img = pimg.frombuffer('RGBA', (w,h), pix)	
+    img.save(nm + "/" + str(dr) + "/" + str(i.id) + ".png", format="PNG", compress_level=0)
 
-    img.save(nm + "/" + str(dr) + "/" + str(i.id) + ".png")
+    del img
+    del itm
     
     jj += 1
 	
