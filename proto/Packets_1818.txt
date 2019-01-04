@@ -1,0 +1,83 @@
+******************************DATA TYPES*****************************************
+;Packet structure:
+; [0][1]L   Packets data len (pkt len - 2)
+; .......   Data
+
+; Packets data divided to:
+; [0]   PacketID
+; ...   Another data
+
+;Variants of another data discribed below
+;Some packets has SubID as first byte
+; So, lets say for example client packet with type 0x45 and subtype 0x02 and another data as AB CD EF will be:
+; 05 00 45 02 AB CD EF
+;
+; and will be writed as:
+; CLIENT    0x45(0x02)  5
+; Packet short description
+;     [1]           Subtype 0x02
+;     [2][3][4]L    This is AB CD EF
+;
+; Description only for "Another data".
+; Offsets [xx] is decimal
+
+
+******************************PAKETS*********************************
+;#####PACKETS#######
+;Generator	pktID(subID)	DataLength
+;Flags: xxxx
+;Description
+;	Decode
+;.....
+
+
+
+*****************************SERVER->CLIENT**********************************
+
+
+SERVER  0xD0    22(for Xen Online)  24+(SoS and SoS:Reborn)
+Login answer of server
+    [1]             Answer type
+    [2][3][4][5]L   IP address of char server. Used only for answer type 3. For other answers can be set to 0
+    [6].....[21]    16 bytes user session token? Used for answer types 0 and 3.
+    
+;SoS
+    [22]            Additional ID size (max 20)
+    [23]....+       Additional ID
+    
+; Answer types:
+;   0 - User accepted and can request for server list
+;   1 - User ID is not registered
+;   2 - Wrong password
+;   3 - Another connection detected. (Client will try connect to specified char server and do request to disconnect another connection)
+;   4 - Unknown error
+;   5 - [Notice] Checking Server
+;   6 - Access of this user is limited
+
+
+SERVER  0xD1    22-202
+Char server list
+    [1]             Number of char servers
+    +20b * number   Server records (each 20 byte)
+    ....
+
+; Server record. 20bytes :
+; [0]               - Server id? NOT USED. Can be set to 0
+; [1]...[13]        - Server name
+; [14][15][16][17]L - Server ipv4 address
+; [18][19]L         - Port number? NOT USED. Can be set to 0
+
+
+
+
+*****************************CLIENT->SERVER**********************************
+*This packets recieved by server from client
+
+CLIENT  0xD0    22+
+Request for login.
+    [1]...[20]  20bytes user ID provided by command line "-ID" argument. (shorter ID padded by 0x00 up to 20bytes)
+    [21]        "-PW" string size
+    [22]...+    "-PW" string
+
+CLIENT  0xD1    1
+Request server list

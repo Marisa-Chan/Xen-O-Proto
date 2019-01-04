@@ -12,16 +12,16 @@ For old client pre-Reborn: old_sos
 - XenOnline DXRender.exe/GLRender.exe:
 
 * -I server_ip
-* -ID ?
-* -PW ?
-* -PT ?
+* -ID login id.
+* -PW login additional data, password, token? Used only in login packet
+* -PT login server port
 
 - Reborn DXRender.exe/GLRender.exe:
 
 * -OSK_SERVER server_ip
 * -OSK_TOKEN ?
 * -OSK_STORE ?
-* -ID ?
-* -PW ?
-* -PT ?
+* -ID login id.
+* -PW login additional data, password, token? Used only in login packet
+* -PT login server port
  
