@@ -182,10 +182,10 @@ for i in d:
     a.seek(i.off)
 
     itm = readItem(a)
-    if (i.bodyID == 62306):
-        s = open(str(i.bodyID), "wb")
-        s.write(itm)
-        s.close()
+#    if (i.bodyID == 62306):
+#        s = open(str(i.bodyID), "wb")
+#        s.write(itm)
+#        s.close()
 
     w = itm[0] | (itm[1] << 8)
     h = itm[2] | (itm[3] << 8)
