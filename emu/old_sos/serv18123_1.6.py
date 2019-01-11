@@ -7,6 +7,53 @@ import DNCPacket
 import config
 
 pktid = 0
+config.NETXORKEY = 0xB244C01E
+
+def CreateCharacter(ID, NAME, X, Y):
+	UNKSTR=""
+	p = DNCPacket.Packet()
+	p.tp = 0xB1
+	
+	#++0x0
+	p.data.append(1)                       # SubType 1 - create player
+	
+	p.data.append(0)                       # 0 - quite create, 1 - create with sound and splash effect
+	p.data += ID.to_bytes(2, byteorder = "little") # Map object ID
+				
+	#++0x4
+	p.data += bytes(10)                    # Charview bytes
+				
+	#++0xE (14)
+	p.data.append(0)                       #Walk mask 
+	p.data.append(50)                      #WalkSpeed    0-59
+	p.data.append(2)                       #Character direction
+	p.data.append(0)                       #state?
+	p.data.append(0)                       #Acc level or iconID or what? (240+ - has "GM" mark)
+	
+	#++0x13 (19)
+	p.data += X.to_bytes(2, byteorder = "little")  #X coord
+	p.data += Y.to_bytes(2, byteorder = "little")  #Y coord
+	
+	#++0x17 (23)
+	p.data += (0x12345678).to_bytes(4, byteorder = "little")  #???Guild ID??
+	p.data.append(0xCC)                                 #???Something belongs to Guild. May be emblem sequental ID of this guild???    if 0xFF - not in guild or no emblem?, because does not send request for emblem
+	
+	p.data.append(1)                                 #???
+	p.data.append(1)                                 #???
+	p.data.append(1)                                 #???
+	
+	#++0x1F (31)
+	p.data.append(1)                                 #???
+	p.data += (1).to_bytes(2, byteorder = "little")  #???
+	
+	p.data.append( len(NAME) )
+	p.data.append( len(UNKSTR) ) ## Guild ??
+	
+	p.data += NAME.encode("UTF-8")
+	p.data += UNKSTR.encode("UTF-8")
+										
+	return p
+	
 
 class connThread(threading.Thread):
 	def __init__(self, conn, addr):
@@ -37,9 +84,9 @@ class connThread(threading.Thread):
 					p.tp = 0xBF
 					p.pktid = pktid
 
-					p.data.append(1)
-					p.data += bytes([1, 1])
-					p.data += bytes([1, 0, 0, 0] )
+					p.data.append(1)               #player object scope (1,2,3). 1 - player type, 2 - monster type, 3 - npc type
+					p.data += bytes([1, 1])        #player object ID (for example 0x101 == 257)
+					p.data += bytes([2, 0, 0, 0] ) #some timestamp
 					
 					DNCPacket.placePkt(p, outbuf, self.conn, True)
 					pktid += 1					
@@ -100,52 +147,16 @@ class connThread(threading.Thread):
 
 
 					#Create player char
-					p = DNCPacket.Packet()
-					p.tp = 0xB1
+					p = CreateCharacter(257, "Your Character", 100, 100)
 					p.pktid = pktid
-
-					#++0x0
-					p.data.append(1)
-					p.data.append(0)
-					p.data += bytes([1, 1])
-				
-					#++0x4
-					p.data += bytes(10)
-				
-					#++18
-					p.data.append(0)
-					p.data.append(50) #speed    0-59
-					p.data.append(0)
-					p.data.append(0)
-					p.data.append(0)
 					
-					p.data += bytes([100, 0])
-					p.data += bytes([100, 0])
-				
-					p.data += bytes(13)
-										
 					DNCPacket.placePkt(p, outbuf, self.conn, True)
 					pktid += 1
 
 
-					
-					#Create another char
-					p = DNCPacket.Packet()
-					p.tp = 0xB1
+					#Create player char
+					p = CreateCharacter(256, "Another Character", 105, 100)
 					p.pktid = pktid
-
-					#++0x0
-					p.data.append(1)
-					p.data.append(0)
-					p.data += bytes([1, 0])
-				
-					#++0x4
-					p.data += bytes(15)
-
-					p.data += bytes([105, 0])
-					p.data += bytes([105, 0])
-				
-					p.data += bytes(13)
 					
 					DNCPacket.placePkt(p, outbuf, self.conn, True)
 					pktid += 1
@@ -157,7 +168,7 @@ class connThread(threading.Thread):
 					if (pin.data[0] == 0x16):
 						wantX = pin.data[1] | (pin.data[2] << 8)
 						wantY = pin.data[3] | (pin.data[4] << 8)
-						print("Go to {}x{}".format(wantX, wantY))
+						print("\tGo to {}x{}".format(wantX, wantY))
 						
 						p = DNCPacket.Packet()
 						p.tp = 0xB3
@@ -169,6 +180,51 @@ class connThread(threading.Thread):
 						
 						p.data += bytes([pin.data[1], pin.data[2]])
 						p.data += bytes([pin.data[3], pin.data[4]])
+					
+						DNCPacket.placePkt(p, outbuf, self.conn, True)
+						pktid += 1
+						
+				elif (pin.tp == 0xC4): #Guild things requests
+					print ("Recvd pkt 0xC4 {}: ".format(hex(pin.data[0])) + pin.data.hex() )
+					if (pin.data[0] == 0x10): #Want emblem for guild
+						p = DNCPacket.Packet()
+						p.tp = 0xC4
+						p.pktid = pktid
+						
+						print("\tWant emblem {} {}".format( hex(pin.data[1] | (pin.data[2] << 8) | (pin.data[3] << 16) | (pin.data[4] << 24) ) ,
+														  hex(pin.data[5]) ) 
+														  )
+
+						#++0x0
+						p.data.append(2) #Send guild emblem
+						p.data += bytes([128,127,126,125]) #Guild ID
+						p.data.append(124) #Guild ID_2
+						
+						#Emblem file data
+						# 1b Filename string size
+						# ++ Filename string in game codepage
+						# 2b next data size (compressed size + 3 bytes of header)
+						# 1b tex width
+						# 1b tex height
+						# 1b tex format (looks like it's must be 5 or 6 format, or may be 0-4 can be too, but not 7 or 8)
+						# ++ compressed data
+						
+						# 0 format is GL_RGBA and GL_UNSIGNED_SHORT_4_4_4_4    (internal tex GL_RGBA)
+						# 1 format is GL_RGBA and GL_UNSIGNED_SHORT_5_5_5_1    (internal tex GL_RGBA)
+						# 2 format is GL_RGBA and GL_UNSIGNED_BYTE    (internal tex GL_RGBA)
+						# 3 format is GL_LUMINANCE and GL_UNSIGNED_BYTE   (internal tex GL_LUMINANCE)
+						# 4 format is GL_LUMINANCE and GL_UNSIGNED_BYTE   (internal tex GL_INTENSITY)
+						# 5 format is GL_BGRA_EXT and GL_UNSIGNED_SHORT_4_4_4_4_REV (internal tex GL_RGBA)  +++
+						# 6 format is GL_BGRA_EXT and GL_UNSIGNED_SHORT_1_5_5_5_REV (internal tex GL_RGBA)  +++
+						# 7 format is GL_BGRA_EXT and GL_UNSIGNED_BYTE (internal tex GL_RGBA)
+						# 8 format is GL_RGBA and GL_UNSIGNED_BYTE (internal tex GL_INTENSITY)
+						
+						# transferred emblem file will be stored in c:/..../app data/.../Sos/Emblem/xxxxxx.emb
+						# name is 8 chars xxxxxxxx.emb
+						# where xxxxxxx - hex hash 8 chars
+						# calculated from -  sdbm(   GUILDID hex (string 8chars) + GUILDID_2 hex (string 2chars)  )
+						
+						p.data += bytes((0,1,2,3,4,5,6,7,8,9,10,11,12,13,99)) # Just test bytes
 					
 						DNCPacket.placePkt(p, outbuf, self.conn, True)
 						pktid += 1
