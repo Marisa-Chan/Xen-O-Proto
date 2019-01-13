@@ -147,7 +147,7 @@ class connThread(threading.Thread):
 
 
 					#Create player char
-					p = CreateCharacter(257, "Your Character", 100, 100)
+					p = CreateCharacter(257, "YourChar", 100, 100)
 					p.pktid = pktid
 					
 					DNCPacket.placePkt(p, outbuf, self.conn, True)
@@ -155,13 +155,62 @@ class connThread(threading.Thread):
 
 
 					#Create player char
-					p = CreateCharacter(256, "Another Character", 105, 100)
+					p = CreateCharacter(256, "AnotherChar", 105, 100)
 					p.pktid = pktid
 					
 					DNCPacket.placePkt(p, outbuf, self.conn, True)
 					pktid += 1
 					
 					print("OK")
+				elif (pin.tp == 0xBA):
+					print("Packet 0xBA:")
+					if (pin.data[0] == 0x11):
+						print("\t Normal msg len == {} : {}".format( str(pin.data[1]), pin.data[2:].decode("utf-8") ) )
+						p = DNCPacket.Packet()
+						p.tp = 0xBA
+						p.pktid = pktid
+						
+						p.data.append(0x11)
+						p.data.append(1) # scope
+						p.data += (256).to_bytes(2, byteorder = "little") # obj ID  256 - for another character
+						p.data.append( len("Test string of 0x11") ) #msg len
+						p.data += "Test string of 0x11".encode("utf-8") #msg
+						
+						DNCPacket.placePkt(p, outbuf, self.conn, True)
+						pktid += 1
+					elif (pin.data[0] == 0x12):
+						whisplen = pin.data[1]
+						print("\t Whisper for \"{}\": {}".format( pin.data[3:3 + whisplen].decode("utf-8"),  pin.data[3 + whisplen:].decode("utf-8") ) )
+						p = DNCPacket.Packet()
+						p.tp = 0xBA
+						p.pktid = pktid
+						
+						p.data.append(0x12)
+						p.data.append(1) # direction (1 - To)
+						p.data.append( len("AnotherChar") ) # len name
+						p.data.append( len("Test string TO 0x12") ) # len msg
+						p.data += "AnotherChar".encode("utf-8") #name
+						p.data += "Test string TO 0x12".encode("utf-8") #msg
+						
+						DNCPacket.placePkt(p, outbuf, self.conn, True)
+						pktid += 1
+						
+						p = DNCPacket.Packet()
+						p.tp = 0xBA
+						p.pktid = pktid
+						
+						p.data.append(0x12)
+						p.data.append(0) # direction (0 - From)
+						p.data.append( len("AnotherChar") ) # len name
+						p.data.append( len("Test >_< string FROM 0x12") ) # len msg
+						p.data += "AnotherChar".encode("utf-8") #name
+						p.data += "Test >_< string FROM 0x12".encode("utf-8") #msg
+						
+						DNCPacket.placePkt(p, outbuf, self.conn, True)
+						pktid += 1
+					else:
+						print ("Recvd pkt 0xBA {}: ".format(hex(pin.data[0])) + pin.data.hex())
+						
 				elif (pin.tp == 0xBC):
 					print ("Recvd pkt 0xBC {}: ".format(hex(pin.data[0])) + pin.data.hex())
 					
