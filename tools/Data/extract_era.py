@@ -69,7 +69,7 @@ while i < len(c):
 	itemID  = int.from_bytes(c[i  :i+4], "little")
 	itemOff = int.from_bytes(c[i+4:i+8], "little")
 	
-	if itemOff < off:
+	if itemOff < off and itemOff != 0:
 		itmInf = decodeItem(b, itemOff)
 	
 		s = open(dr + "/" + str(itemID) + ".raw", "wb")
