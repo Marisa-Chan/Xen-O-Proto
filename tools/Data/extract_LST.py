@@ -1,38 +1,9 @@
 #!/usr/bin/python3
 
-import zlib
+import EraDra
 from PIL import Image as pimg
 import os
 import sys
-
-class lst:
-	id = 0
-	off = 0
-	arr = 0
-
-def readItem(a):
-	a.seek(4, 1)
-	b = a.read(4)
-	decsz	= int.from_bytes(b, "little")
-	b = a.read(4)
-	compsz	= int.from_bytes(b, "little")
-	
-	b = a.read(1)
-	
-	d = None
-	
-	if b[0] == 1:
-		d = bytearray(zlib.decompress(a.read(compsz)) )
-	else:
-		d = bytearray(a.read(compsz))
-	
-	return d
-
-def mkName(z, id):
-    if (id):
-        return "{:s}.{:03x}".format(z, id)
-    else:
-        return nm + ".DRA"
 
 if len(sys.argv) != 2:
     print("Usage: " + sys.argv[0] + " FILENAME")
@@ -41,53 +12,17 @@ if len(sys.argv) != 2:
 
 nm = sys.argv[1] #"GPBMP"
 
-itms = list()
-
-a = open(nm + ".LST", "rb")
-a.seek(0x10,0)
-numitems = int.from_bytes( a.read(4) , "little" )
-
-a.seek(2, 1)
-
-i = 0
-while i < numitems:
-	k = lst()
-	k.id  = int.from_bytes( a.read(4) , "little" )
-	k.off = int.from_bytes( a.read(4) , "little" )
-	k.arr = a.read(1)[0]
-	itms.append(k)
-	i += 1
-
-a.close()
-
-prevname=""
-a = None
-
-jj = 0
-
-valspd = bytearray(16)
-while jj < 16:
-    valspd[jj] = jj * 17
-    jj += 1
-
-jj = 0
+arc = EraDra.TLst( nm )
 
 if not (os.path.isdir(nm)):
     os.mkdir(nm)
 
 pix = bytearray(1024 * 1024 * 4)
 
-for i in itms:
-    nd = mkName(nm, i.arr)
-    if nd != prevname:
-        if a != None:
-            a.close()
-        a = open(nd, "rb")
-        prevname = nd
+jj = 0
+for elm in arc.items:
 
-    a.seek(i.off)
-
-    itm = readItem(a)
+    itm = arc.readItem(elm)
 
 
 #     s = open(str(i.id), "wb")
@@ -96,8 +31,6 @@ for i in itms:
 
     w = itm[0] | (itm[1] << 8)
     h = itm[2] | (itm[3] << 8)
-
-    
 
     xpages = (w + 0xFF) >> 8
     ypages = (h + 0xFF) >> 8
@@ -128,12 +61,12 @@ for i in itms:
                 while xx < pw:
     
                     t = itm[inof + 1]
-                    r = valspd[(t >> 4) & 0xF]
-                    g = valspd[(t & 0xF)]
+                    r = ((t >> 4) & 0xF) * 17
+                    g = (t & 0xF) * 17
 
                     t = itm[inof]
-                    b = valspd[(t >> 4) & 0xF]
-                    aa = valspd[(t & 0xF)]
+                    b = ((t >> 4) & 0xF) * 17
+                    aa = (t & 0xF) * 17
 
                     pix[outof] = r
                     pix[outof + 1] = g
@@ -161,14 +94,14 @@ for i in itms:
             os.mkdir(nm + "/" + str(dr))
 	
     img = pimg.frombuffer('RGBA', (w,h), pix)	
-    img.save(nm + "/" + str(dr) + "/" + str(i.id) + ".png", format="PNG", compress_level=0)
+    img.save(nm + "/" + str(dr) + "/" + str(elm.ID) + ".png", format="PNG", compress_level=0)
 
     del img
     del itm
     
     jj += 1
 	
-    print("{:d}/{:d}".format(jj - 1, numitems))
+    print("{:d}/{:d}".format(jj, len(arc.items)))
 
 
 

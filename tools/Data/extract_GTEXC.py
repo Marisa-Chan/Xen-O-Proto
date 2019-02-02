@@ -1,80 +1,22 @@
 #!/usr/bin/python3
 
-import zlib
+import EraDra
 from PIL import Image as pimg
 import os
 import sys
 
-class lst:
-	id = 0
-	off = 0
-	arr = 0
 
-def readItem(a):
-	a.seek(4, 1)
-	b = a.read(4)
-	decsz	= int.from_bytes(b, "little")
-	b = a.read(4)
-	compsz	= int.from_bytes(b, "little")
-	
-	b = a.read(1)
-	
-	d = None
-	
-	if b[0] == 1:
-		d = bytearray(zlib.decompress(a.read(compsz)) )
-	else:
-		d = bytearray(a.read(compsz))
-	
-	return d
+nm = "extract_GTEXC"
 
-def mkName(z, id):
-    if (id):
-        return "{:s}.{:03x}".format(z, id)
-    else:
-        return nm + ".DRA"
-
-nm = "GTEXC"
-
-itms = list()
-
-a = open(nm + ".LST", "rb")
-a.seek(0x10,0)
-numitems = int.from_bytes( a.read(4) , "little" )
-
-a.seek(2, 1)
-
-i = 0
-while i < numitems:
-	k = lst()
-	k.id  = int.from_bytes( a.read(4) , "little" )
-	k.off = int.from_bytes( a.read(4) , "little" )
-	k.arr = a.read(1)[0]
-	itms.append(k)
-	i += 1
-
-a.close()
-
-prevname=""
-a = None
-
-jj = 0
+arc = EraDra.TLst( "GTEXC" )
 
 if not (os.path.isdir(nm)):
     os.mkdir(nm)
 
-for i in itms:
-    nd = mkName(nm, i.arr)
-    if nd != prevname:
-        if a != None:
-            a.close()
-        a = open(nd, "rb")
-        prevname = nd
+jj = 0
+for elm in arc.items:
 
-    a.seek(i.off)
-
-    itm = readItem(a)
-
+    itm = arc.readItem(elm)
 
     w = itm[0] | (itm[1] << 8)
     h = itm[2] | (itm[3] << 8)
@@ -144,11 +86,11 @@ for i in itms:
             os.mkdir(nm + "/" + str(dr))
 	
     if tp != 3 and tp != 4:
-        img.save(nm + "/" + str(dr) + "/" + str(i.id) + ".png")
+        img.save(nm + "/" + str(dr) + "/" + str(elm.ID) + ".png")
     
     jj += 1
 	
-    print("{:d}/{:d}".format(jj - 1, numitems))
+    print( "{:d}/{:d}".format(jj, len(arc.items) ) )
 
 
 
