@@ -155,8 +155,20 @@ class connThread(threading.Thread):
 
 
 					#Create player char
-					p = CreateCharacter(256, "AnotherChar", 105, 100)
+					p = CreateCharacter(256, "AAAAAA", 105, 100)
 					p.pktid = pktid
+					
+					DNCPacket.placePkt(p, outbuf, self.conn, True)
+					pktid += 1
+					
+					
+					p = DNCPacket.Packet()
+					p.tp = 0xB5
+					p.pktid = pktid
+					
+					p.data.append(0x1A)
+					p.data.append(1)
+					p.data += (256).to_bytes(2, byteorder = "little")
 					
 					DNCPacket.placePkt(p, outbuf, self.conn, True)
 					pktid += 1

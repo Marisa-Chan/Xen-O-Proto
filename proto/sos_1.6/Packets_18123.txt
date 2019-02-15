@@ -1,0 +1,904 @@
+******************************DATA TYPES*****************************************
+
+;Scope IDs:
+;	1 MapPlayerObj
+;	2 MapMonsterObj
+;	3 MapNpcObj
+;       4 MapItemObj
+;	5 MapDealObj
+;       6 ?????
+;       7 MapPetObj
+;       9 MapBuffObj
+
+;Character view description
+;	[0]		(BDType) Job + gender (0x80 - gender, 0x7F values - job)
+;	[1]		(WepType)
+;	[2]		(Wear) mount or kigurumi
+;	[3]		(Hair) hair color + style?   (0-2, 10-12, 20-22)
+;	[4]		(Head) hat 
+;	[5]		(Face) scarf (only 12 ID?)
+;	[6]		(ArmLeft) shield
+;	[7]		(ArmRight) weapon
+;	[8]		(Eye) glasses (ID 3 only?)
+;	[9]		(BackPack) backpack
+
+
+;ItemSlot struct
+;	[0][1]L		Item ID
+;	[2][3]L		Num of items
+;	[4]		??
+;	[5]		??
+;	[6]		??
+;	[7]		??
+
+
+;QuestSlot	0x7FFF - quest ID, 0x8000 - completed
+
+;MapObj direction
+;	0 - N
+;	1 - E
+;	2 - S
+;	3 - W
+;	4 - NW
+;	5 - NE
+;	6 - SE
+;	7 - SW
+
+
+;SkillID	0xFFF - ID,  0xF000 - time factor for additional time for some buffs/debuffs
+
+
+;SkillTime struct
+;	[0][1]L		SkillID  
+;	[2][3][4][5]L	Time
+
+
+;WarpPos struct
+;	[0][1][2][3]L	MapID where this warp is pointed
+;	[4][5]L		X pos
+;	[6][7]L		Y pos
+
+
+;NPCName
+; In XenOnline - it's integer string with ID of NPC name, because it's multilanguage.
+; In Reborn - it's real name string with first special characters: ! @ % # $
+; Like: "!Salad" - it will be purple "Salad". And "Salad" will be green "Salad"
+
+
+;Protocol version
+; [0][1]L    ??
+; [2][3]L    ??
+; [4][5]L    Codepage. (Text encoding codepage)
+; [6][7]L    ??
+
+******************************PAKETS*********************************
+;#####PACKETS#######
+;Generator	pkt(sub)	DataLength
+;Flags: xxxx
+;Description
+;	Decode
+;.....
+
+;Flags:
+;	? - Activate this flag in some cases
+;	E - Recalc effects of buffs/items
+;
+
+
+*****************************SERVER->CLIENT**********************************
+*This packets recieved by client from server
+
+
+SERVER  0x03		2
+Send disconnect to player (also must be sended when client want disconnect -- 0xB0 0 )
+	[0][1]L		disconnect type (0, 1, 2, 0xFFF)
+
+
+SERVER  0xB1(0x03)	21+
+Create NPC
+	[0]		Subtype 3
+	[1]		Create with appear effect(1) or not(0)
+	[2][3]L		MAP obj ID
+	[4][5]L		BODY ID
+	[6][7]L		Effect ID run
+	[8]		Movement mask
+	[9]		Movement speed (0-59)
+	[10]		MapObj direction
+	[11]		Interact script scope (0 - Scrobjects.era, 1 - lscripts.era, ?? - disable script)
+	[12][13]L	Interact script ID
+	[14][15]L	Startup script ID, executed on NPC creation
+	[16][17]L	X
+	[18][19]L	Y
+	[20]		Name len
+	[21]...		Name string. NPCName. Multilang: Name must be STRING like "1", "661". Real name will be readed from GameSvrNpc.mdlr
+
+
+SERVER  0xB2(0x03)	25+
+Create goes NPC from xy to dst xy 
+P.S.: NPC doesn't have go animation??? 
+      Some of them also avaliable as Monsters with animations
+	[0]		Subtype 3
+	[1]		Create with appear effect(1) or not(0)
+	[2][3]L		MAP obj ID
+	[4][5]L		BODY ID
+	[6][7]L		Effect ID run
+	[8]		Movement mask
+	[9]		Movement speed (0-59)
+	[10]		MapObj direction
+	[11]		Interact script scope (0 - Scrobjects.era, 1 - lscripts.era, ?? - disable script)
+	[12][13]L	Interact script ID
+	[14][15]L	Startup script ID, executed on NPC creation
+	[16][17]L	X
+	[18][19]L	Y
+	[20][21]L	X dst
+	[22][23]L	Y dst
+	[24]		Name len
+	[25]...		Name string. NPCName. Multilang: Name must be STRING like "1", "661". Real name will be readed from GameSvrNpc.mdlr
+	
+
+SERVER	0xB3		7
+Do move map obj to XY with setted speed
+	[0]		Scope ID (1,2,3,7)
+	[1][2]L		MAP obj ID
+	[3][4]L		X
+	[5][6]L		Y
+
+
+SERVER	0xB4		4
+?????????
+	[0]		Scope ID
+	[1]		?????????
+	[2][3]L		MAP obj ID
+
+
+SERVER	0xB5(7)		5
+LevelUP effect and msg
+	[0]		Subtype 7
+	[1]		Scope ID
+	[2][3]L		MAP obj ID
+	[4]		new level
+
+SERVER	0xB5(0x10)	8
+Spawn effect on object
+	[0]		Subtype 0x10
+	[1]		Scope ID
+	[2][3]L		MAP obj ID
+	[4][5]L		effect id
+	[6][7]L		?????????
+
+SERVER	0xB5(0x11)	5
+set player state
+	[0]		Subtype 0x11
+	[1]		Scope ID
+	[2][3]L		MAP obj ID
+	[4]		new player state
+
+SERVER	0xB5(0x12)	5
+Set character direction
+	[0]		Subtype 0x12
+	[1]		Scope ID
+	[2][3]L		MAP obj ID
+	[4]		new player direction (0-7)
+
+
+SERVER	0xB5(0x14)	5
+Set speed
+	[0]		Subtype 0x14
+	[1]		Scope ID
+	[2][3]L		MAP obj ID
+	[4]		new speed (0-59)
+
+
+SERVER	0xB5(0x15)	5
+Change job
+	[0]		Subtype 0x15
+	[1]		Scope ID
+	[2][3]L		MAP obj ID
+	[4]		new job (0-24)
+
+
+SERVER	0xB5(0x16)	5
+Emoticon
+	[0]		Subtype 0x16
+	[1]		Scope ID	(!4)
+	[2][3]L		MAP obj ID
+	[4]		Emoticon (1-12)
+
+
+SERVER	0xB5(0x17)	9
+???????
+	[0]		Subtype 0x17
+	[1]		Scope ID	(1)
+	[2][3]L		MAP obj ID
+	[4][5][6][7]L	???????
+	[8]		???????
+
+
+SERVER	0xB5(0x18)(1)	18
+Change character view
+	[0]		Subtype 0x18
+	[1]		Scope ID == 1 
+	[2][3]L		MAP obj ID
+	[4]...[18]	character view
+
+
+SERVER	0xB5(0x1A)		4
+Set character friend flag
+	[0]		Subtype 0x1A
+	[1]		Scope ID == 1 
+	[2][3]L		MAP obj ID
+
+
+SERVER	0xB5(0x1B)		4
+Clean character friend flag
+	[0]		Subtype 0x1B
+	[1]		Scope ID == 1 
+	[2][3]L		MAP obj ID
+
+
+SERVER	0xC0(1)		9
+Flags:	E
+Set player kron
+	[0]		Subtype 0x1
+	[1]....[8]L	Kron (64bit)
+
+
+SERVER	0xC0(2)		2
+Flags:	E
+Set allow/disable bits(forms/party/etc)
+	[0]		Subtype 0x2
+	[1]		Bits (1,2,8,0x20)
+
+
+SERVER	0xC0(3)		2
+Change player info character Job
+	[0]		Subtype 0x3
+	[1]		new job(0-24)
+
+
+SERVER	0xC0(4)		2
+??????
+	[0]		Subtype 0x4
+	[1]		??????
+
+
+SERVER	0xC0(5)		3
+SERVER	0xC0(7)		3
+Set player current HP
+	[0]		Subtype 0x5(0x7)
+	[1][2]L		current HP
+
+
+SERVER	0xC0(6)		3
+SERVER	0xC0(8)		3
+Set player current MP
+	[0]		Subtype 0x6(0x8)
+	[1][2]L		current MP
+
+
+SERVER	0xC0(9)		5
+??????
+	[0]		Subtype 0x9
+	[1][2][3][4]L	??????
+
+
+SERVER	0xC0(A)		5
+??????
+	[0]		Subtype 0xA
+	[1][2][3][4]L	??????
+
+
+SERVER	0xC0(B)		5
+??????
+	[0]		Subtype 0xB
+	[1][2][3][4]L	??????
+
+
+SERVER	0xC0(0x1A)	2
+Set player character level (w/o levelup effect)
+	[0]		Subtype 0x1A
+	[1]		player level
+
+
+SERVER	0xC0(0x1B)	3
+Set player character exp level
+	[0]		Subtype 0x1B
+	[1][2]L		exp level (0-65535) 0.00-99.99
+
+
+SERVER	0xC0(0x21)	3
+Set player character POW
+	[0]		Subtype 0x21
+	[1][2]L		POW
+
+
+SERVER	0xC0(0x22)	3
+Set player character INT
+	[0]		Subtype 0x22
+	[1][2]L		INT
+
+
+SERVER	0xC0(0x23)	3
+Set player character STA
+	[0]		Subtype 0x23
+	[1][2]L		STA
+
+
+SERVER	0xC0(0x24)	3
+Set player character AGI
+	[0]		Subtype 0x24
+	[1][2]L		AGI
+
+
+SERVER	0xC0(0x25)	3
+Set player character MEN
+	[0]		Subtype 0x25
+	[1][2]L		MEN
+
+
+SERVER	0xC0(0x26)	3
+????????
+	[0]		Subtype 0x26
+	[1][2]L		????????
+
+
+SERVER	0xC0(0x2F)	3
+Set count of free status points
+	[0]		Subtype 0x2F
+	[1][2]L		Status points
+
+
+SERVER	0xC0(0x31)	2+
+Set inv spend items
+	[0]		Subtype 0x31
+	[1]		Num of items
+	[+8]		ItemSlots (8b * Num)
+	...
+
+
+SERVER	0xC0(0x32)	2+
+Set inv gear items
+	[0]		Subtype 0x32
+	[1]		Num of items
+	[+8]		ItemSlots (8b * Num)
+	...
+
+
+SERVER	0xC0(0x33)	2+
+Set inv other items
+	[0]		Subtype 0x33
+	[1]		Num of items
+	[+8]		ItemSlots (8b * Num)
+	...
+
+
+SERVER	0xC0(0x34)	9
+Add amount of item with chat log
+	[0]		Subtype 0x34
+	[1]...[8]	ItemSlot
+
+
+SERVER	0xC0(0x35)	9
+Delete amount of item(without of chat log)
+	[0]		Subtype 0x35
+	[1]...[8]	ItemSlot
+
+
+SERVER	0xC0(0x36)	9
+Delete amount of item(without of chat log) ???
+	[0]		Subtype 0x36
+	[1]...[8]	ItemSlot
+
+
+SERVER	0xC0(0x37)	9
+Add amount of item without chat log
+	[0]		Subtype 0x37
+	[1]...[8]	ItemSlot
+
+
+SERVER	0xC0(0x38)	3 + n*8
+Add amount of items with chat log
+	[0]		Subtype 0x38
+	[1]		???? not used??
+	[2]		ItemsCount
+	[+8]		ItemSlot (8b * Num)
+	...
+
+
+SERVER	0xC0(0x39)	2 + n*8
+Delete amount of items without chat log
+	[0]		Subtype 0x39
+	[1]		ItemsCount
+	[+8]		ItemSlot (8b * Num)
+	...
+
+
+SERVER	0xC0(0x3A)	10+
+Another ?? picked item
+	[0]		Subtype 0x3A
+	[1]...[8]	ItemSlot
+	[9]		NameLength
+	[10]...		Name
+
+
+SERVER	0xC0(0x3C)	10+
+Item ?? expire (Also can? send 0xC1 packet to server)
+	[0]		Subtype 0x3C
+	[1]		0 - gear list, 1 - ?? list(12 items max), 2 - ?? list(4 items max)
+	[2]...[9]	ItemSlot
+
+
+SERVER	0xC0(0x3F)	2
+Failed to receive a gift msg or ???
+	[0]		Subtype 0x3F
+	[1]		!1 - Failed to receive a gift. 1 - ???
+
+
+SERVER	0xC0(0x40)	2 + n*6
+Flags:	E
+Set buff/debuff effects  (skill type >= 0x20 and < 0x2A)
+	[0]		Subtype 0x40
+	[1]		Num buffs
+	[+6]		SkillTime * num
+	...
+
+
+SERVER	0xC0(0x41)	3
+Flags:	E
+Renew/Add buff/debuff with full time
+	[0]		Subtype 0x41
+	[1][2]L		SkillID
+
+
+SERVER	0xC0(0x42)	3
+Flags:	E
+Delete buff/debuff
+	[0]		Subtype 0x42
+	[1][2]L		SkillID
+
+
+SERVER	0xC0(0x43)	7
+Flags:
+Set buff time ( type >=0x23 and <0x25 ) (d'not touch skill slots in client)
+	[0]		Subtype 0x43
+	[1][2]L		SkillID
+	[3][4][5][6]L	Time
+
+
+SERVER	0xC0(0x44)	7
+Flags:
+Add/renew buff ( type >=0x20 and <0x2A ) (d'not touch skill slots in client)
+	[0]		Subtype 0x44
+	[1][2]L		SkillID
+	[3][4][5][6]L	Time
+
+
+SERVER  0xC0(0x45)	26+
+Flags: E?
+?????????
+	[0]		Subtype 0x45
+	[1]			?????	if == 2 or 18 -> Flag: E 
+	[ 2][ 3][ 4][ 5]L	?????
+	[ 6][ 7][ 8][ 9]L	?????
+	[10][11][12][13]L	?????
+	[14]........[23]	?????
+	[24]			?????
+	[25]			num
+	[+6] * num		num * 6 bytes  ?????
+	...
+	[ 1b ]			length
+	[ length bytes ]	some string (multiline?) ????
+
+
+SERVER  0xC0(0x46)	28+
+Flags:
+?????????
+	[0]		Subtype 0x46
+	[1]			?????
+	[2]			???not used???
+	[3]			size of not used thing??
+	[4]........[]		not used thing???
+	....
+	[ 0][ 1][ 2][ 3]L		?????
+	[ 4][ 5][ 6][ 7]L	?????
+	[ 8][ 9][10][11]L	?????
+	[12]........[21]	?????
+	[22]			?????
+	[23]			num
+	[+6] * num		num * 6 bytes  ?????
+	...
+	[ 1b ]			length
+	[ length bytes ]	some string (multiline?) ????
+
+
+SERVER	0xC0(0x47)	2+
+Flags:
+% s is the item is damaged during repair.
+	[0]		Subtype 0x47
+	[1]		Number of items
+	[+2] * num	Item ID
+	...
+
+
+SERVER	0xC0(0x4A)	10
+Flags: E
+Get item in party/lot/automat
+	[0]		Subtype 0x4A
+	[1]		0 - automat, 1 - lot, 2 - normal add, 0xb0 - only chat msg(??party get??), 0xd0 - add item without chat log
+	[2]..8bt..[9]	ItemSlot
+
+
+SERVER	0xC0(0x4B)	3
+Flags:
+You purchased %s item. Popup msg only, no real item added??
+	[0]		Subtype 0x4B
+	[1][2]L		Item ID(shop items??) gipkginf items
+
+
+SERVER	0xC0(0x4C)	3
+Flags: E
+Spent/deliver item in party
+	[0]		Subtype 0x4C
+	[1]		0 - delete item without chatlog, 0xD0 - deliver msg(msg for type <0x20), 0xD1 - Discarded msg, 0xD2 - Deleted msg, 0xD3 - Used msg
+	[2]..8bt..[9]	ItemSlot
+
+
+SERVER  0xC0(0x4D)	1
+Flags:
+You have purchased the listed items. Popup msg
+	[0]		Subtype 0x4D
+
+
+SERVER  0xC0(0x50)	2+
+Flags: E
+Set avaliable skills
+	[0]		Subtype 0x50
+	[1]		Skills number
+	[+2] * num	SkillID
+	...
+
+
+SERVER  0xC0(0x51)	3
+Flags: E
+Learn(with chatlog)/Delete skill
+	[0]		Subtype 0x51
+	[1][2]L		SkillID
+
+
+SERVER  0xC0(0x52)	2
+Flags: E
+Set ???? of player
+	[0]		Subtype 0x52
+	[1]		?????
+
+
+SERVER  0xC0(0x60)	9
+Flags: E
+Equip/unequip coat
+	[0]		Subtype 0x60
+	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
+
+
+SERVER  0xC0(0x61)	9
+Flags: E
+Equip/unequip helm
+	[0]		Subtype 0x61
+	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
+
+
+SERVER  0xC0(0x62)	9
+Flags: E
+Equip/unequip glasses
+	[0]		Subtype 0x62
+	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
+
+
+SERVER  0xC0(0x63)	9
+Flags: E
+Equip/unequip mask
+	[0]		Subtype 0x63
+	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
+
+
+SERVER  0xC0(0x64)	9
+Flags: E
+Equip/unequip shield
+	[0]		Subtype 0x64
+	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
+
+
+SERVER  0xC0(0x65)	9
+Flags: E
+Equip/unequip weapon
+	[0]		Subtype 0x65
+	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
+
+
+SERVER  0xC0(0x66)	9
+Flags: E
+Equip/unequip cape
+	[0]		Subtype 0x66
+	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
+
+
+SERVER  0xC0(0x67)	9
+Flags: E
+Equip/unequip gloves
+	[0]		Subtype 0x67
+	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
+
+
+SERVER  0xC0(0x68)	9
+Flags: E
+Equip/unequip boots
+	[0]		Subtype 0x68
+	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
+
+
+SERVER  0xC0(0x69)	9
+Flags: E
+Equip/unequip trinket1
+	[0]		Subtype 0x69
+	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
+
+
+SERVER  0xC0(0x6A)	9
+Flags: E
+Equip/unequip trinket2
+	[0]		Subtype 0x6A
+	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
+
+
+SERVER  0xC0(0x6B)	9
+Flags: E
+Equip/unequip trinket3
+	[0]		Subtype 0x6B
+	[1]..8bt..[8]	ItemSlot (if id == 0 - unequip)
+
+
+SERVER  0xC0(0x6E)	3
+Flags: E
+Set backpack item ID
+	[0]		Subtype 0x6E
+	[1][2]L		Backpack item ID
+
+
+SERVER  0xC0(0x70)	2+
+Flags: E
+Set map ??? points list???
+PS: Looks like this functiona only for old solstice
+	[0]		Subtype 0x70
+	[1]		Number of warp points
+	[+8] * num	WarpPos points
+	...
+
+
+SERVER  0xC0(0x71)	9
+Flags: E
+Add ??? point first to list???
+PS: Looks like this functiona only for old solstice
+	[0]		Subtype 0x71
+	[1]..8bt..[8]	WarpPos point
+
+
+SERVER  0xC0(0x73)	2
+Flags:
+Delete ??? point by index
+PS: Looks like this functiona only for old solstice
+	[0]		Subtype 0x73
+	[1]		Index of WarpPos to delete
+
+
+SERVER  0xC0(0x74)	2
+Flags:
+Move ??? point by 1 to list start
+PS: Looks like this functiona only for old solstice
+	[0]		Subtype 0x74
+	[1]		Index of WarpPos to move
+
+
+SERVER  0xC0(0x75)	2
+Flags:
+Move ??? point by 1 to list end
+PS: Looks like this functiona only for old solstice
+	[0]		Subtype 0x75
+	[1]		Index of WarpPos to move
+
+
+SERVER  0xC0(0x80)	10+
+Flags: E
+Keeping Items Window (store/withdraw)
+For deposit/withdraw kron player must have 3450 skill buff - Kron Saving Buff
+	[0]		Subtype 0x80
+	[1]..8bt..[8]	Kron amount in keep
+	[9]		Count of items in keep
+	[+8] * num	ItemSlot
+	...
+
+
+SERVER  0xC0(0x81)	9
+Flags: E
+Update amount of krons in store. Only for openned Keeping Items Window
+	[0]		Subtype 0x81
+	[1]..8bt..[8]	Kron amount in keep
+
+
+SERVER  0xC0(0x82)	9
+Flags: E
+Move ItemSlot into keep from invenotory. Use only for openned Keeping Items Window
+	[0]		Subtype 0x81
+	[1]..8bt..[8]	ItemSlot adding to keep
+
+
+SERVER  0xC0(0x83)	9
+Flags: E
+Move ItemSlot from keep into inventory.  Use only for openned Keeping Items Window
+Chat msg: Found %% of %%
+	[0]		Subtype 0x81
+	[1]..8bt..[8]	ItemSlot adding to inventory
+
+
+SERVER  0xC0(0x84)	3+
+Flags: E
+House Keeping Items Window
+	[0]		Subtype 0x84
+	[1]		Form caption number ( House Keeping  Items (%d) )
+	[2]		Number of items in house
+	[+8] * num
+
+
+SERVER  0xC0(0x85)	9
+Flags: E
+Move ItemSlot into house keep from invenotory. Use only for openned house Keeping Items Window
+	[0]		Subtype 0x85
+	[1]..8bt..[8]	ItemSlot adding to house keep
+
+
+SERVER  0xC0(0x88)	9
+Flags: E
+Move ItemSlot from house keep into invenotory. Use only for openned house Keeping Items Window
+	[0]		Subtype 0x88
+	[1]..8bt..[8]	ItemSlot adding to inventory
+
+
+SERVER  0xC0(0x8A)	2
+Flags:
+SetOwnerMode (for furniture?)
+	[0]		Subtype 0x8A
+	[1]		Owner mode
+
+
+SERVER  0xC0(0x90)	5
+Flags: E
+Set Win count for PVP window(Pre reborn)
+	[0]		Subtype 0x90
+	[1][2][3][4]L	win count
+
+
+SERVER  0xC0(0x91)	5
+Flags: E
+Set Lose count for PVP window(Pre reborn)
+	[0]		Subtype 0x91
+	[1][2][3][4]L	lose count
+
+
+SERVER  0xC0(0x92)	5
+Flags: E
+Set Point count for PVP window(Pre reborn)
+	[0]		Subtype 0x92
+	[1][2][3][4]L	Point count
+
+
+SERVER  0xC0(0xA0)	2+
+Flags: E
+Set Quests List
+	[0]		Subtype 0xA0
+	[1]		Number of quests
+	[+2] * num	QuestSlot
+	...
+
+
+SERVER  0xC0(0xA1)	3
+Flags: E
+Add Quest to list
+	[0]		Subtype 0xA1
+	[1][2]		QuestSlot
+
+
+SERVER  0xC0(0xA2)	3
+Flags: E
+Delete Quest from list
+	[0]		Subtype 0xA2
+	[1][2]		QuestSlot
+
+
+
+SERVER  0xC0(0xA5)  9
+Flags: 
+Result for ExecSvrLuaScript. Interrupt waiting for result;
+	[0]				 Subtype 0xA5
+	[1][2][3][4]L    ???? Seems not used. (Or it's script ID for debug)
+	[5][6][7][8]L    Execution result
+
+
+
+
+*****************************CLIENT->SERVER**********************************
+*This packets recieved by server from client
+
+CLIENT  0xB0		0
+Client want to disconnect
+
+
+
+CLIENT	0xBA(0x11)	3-82
+Send chat message for all
+	[0]		Subtype 0x11
+	[1]		msg length (1-80)
+	[2]...[81]	message
+
+
+
+CLIENT	0xBC(0x16)	5
+Request for character move to XY
+	[0]		Subtype 0x16
+	[1][2]L		Wanted X
+	[3][4]L		Wanted Y
+
+CLIENT	0xBC(0x11)	1
+Request for character sit
+	[0]		Subtype 0x11
+
+CLIENT	0xBC(0x12)	1
+Request for character standup
+	[0]		Subtype 0x12
+
+CLIENT	0xBC(0x19)	2
+Request for emote
+	[0]		Subtype 0x19
+	[1]		emote(0x01 - 0x0c)
+
+CLIENT  0xBC(0x37)  5
+Request for execution Server-side script. Will wait for execution result - 0xC0(A5).
+Parameters for script transmitted by ServerBuffer.
+	[0]				Subtype 0x37
+	[1][2][3][4]L   Script ID
+
+CLIENT	0xBC(0xAA)	1
+Request for restart, after death
+	[0]		Subtype 0xAA
+
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CLIENT  0xBF(0x11)  26+
+Hello message on connect. !!!!!!!!!!!!!!!!!!!!!!!!
+	[0]        Subtype 0x11
+	[1]...[8]  Protocol version?
+	[9]...[24] 16 bytes key receieved on 0xD0(0) of 1818 server
+	[25]       MemberID size ( -ID param ). Max length 20.
+	[26]       Selected charname size.
+	[..]..[..] MemberID
+	[..]..[..] Charname  
+
+
+
+
+CLIENT  0xD0(0x01)  3
+ServerBuffer.SetSize
+	[0]		  Subtype 0x01
+	[1][2]L   New size of ServerBuffer
+
+CLIENT  0xD0(0x02)  3
+ServerBuffer.SetPosition
+	[0]		  Subtype 0x02
+	[1][2]L   New position in ServerBuffer
+
+CLIENT  0xD0(0x03)  2+
+ServerBuffer.WriteXXX
+	[0]		  Subtype 0x03
+	[1]       Data size
+	[....]    Data
+P.S. For strings - first byte of Data field - is string length, then data size field = string size + 1.
+

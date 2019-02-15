@@ -1,0 +1,219 @@
+Packets not encrypted.
+
+Every packet header is:
+	[0][1]L  Packet Len
+	[2]		 Packet type
+
+BUDDY_STATE_00 = Offline
+BUDDY_STATE_01 = Online
+BUDDY_STATE_02 = Busy
+BUDDY_STATE_03 = Leveling Up
+BUDDY_STATE_04 = Out to Lunch
+BUDDY_STATE_05 = Sleeping
+BUDDY_STATE_06 = Away
+
+******************************DATA TYPES*****************************************
+
+BuddyRecord struct (20 bytes)
+	[0]...[12]			Buddy name (max 13 characters)
+	[13][14][15][16]	Unk
+	[17]				Group ID
+	[18]				Buddy state
+	[19]				Block state
+
+GroupRecord struct (14 bytes)
+	[0]           Group ID
+	[1]....[13]   Name
+
+
+*****************************SERVER->CLIENT**********************************
+*This packets recieved by client from server
+
+
+SERVER	0xB0		2
+?????
+	[0][1]L		?????
+
+
+SERVER  0xB1		
+Get all info
+	[0][1][2][3]L		???? TimeStamp???? Not used???
+	[4]					State
+	[5]					????
+	[6]					Num Buddy
+	[7]... Num * 20bt	BuddyRecord * Num
+	[..]				Num Group
+	[..]... Num * 14bt  GroupRecord * Num
+
+
+SERVER	0xB3
+Friend just logged-on.
+	[0][1][2][3]L		???? TimeStamp???? Not used???
+	[4]					New State
+	[5]					Friend name length
+	[6]...				Friend name
+	
+
+SERVER	0xB4
+Friend new state. If logged-off - write it in chat.
+	[0][1][2][3]L		???? TimeStamp???? Not used???
+	[4]					New State
+	[5]					Friend name length
+	[6]...				Friend name
+
+
+SERVER	0xB5
+Set friend block state
+	[0]					Block State
+	[1]					Friend name length
+	[2]...				Friend name
+
+
+SERVER	0xB6
+Set your state
+	[0]					New State
+
+
+SERVER	0xB7
+Request for friending
+	[0]					Who wanted name length
+	[1]					Invite msg length
+	[2]...				Who wanted name
+	[.]...				Invite msg
+
+
+SERVER	0xB8
+Friending answer (only message, not real added)
+	[0]		Answer (0 - Not wanted , 1-Added to you list)
+	[1]		Target friend name length
+	[2]..	Target friend name
+
+
+SERVER	0xB9
+Add friend to list
+	[0][1][2][3]	Unk
+	[4]				Group ID
+	[5]				State
+	[6]				Block State
+	[7]				Name length
+	[8]...			Name
+
+
+SERVER	0xBB
+Delete friend
+	[0]				Name length
+	[1]...			Name
+
+
+SERVER	0xBE
+Private MSG from
+	[0]				Name length
+	[1]				MSG length
+	[2]...			Name
+	[.]...			MSG
+
+
+SERVER	0xBF
+Add group
+	[0]			Group ID
+	[1]			Group name length
+	[2]...		Group Name
+
+
+SERVER	0xC0
+Delete group
+	[0]			Group ID
+
+
+SERVER	0xC1
+Change name of group
+	[0]		Group ID
+	[1]		New name length
+	[2]...	New name
+
+
+SERVER	0xC2
+Move friend to group
+	[0]		Group ID
+	[1]		Friend name length
+	[2]...	Friend name
+
+
+*****************************CLIENT->SERVER**********************************
+*This packets recieved by server from client
+
+
+CLIENT  0xB0		1+
+On connect, send character name
+	[0]		Character name length
+	[1]...  Character name
+
+
+CLIENT  0xB2		0
+On disconnect, notify about quit
+
+
+CLIENT	0xB5		2+
+Want set block/unblock state of friend
+	[0]		New state (1 - block, 0 - unblock)
+	[1]		Friend name length
+	[2]...	Friend name
+
+CLIENT	0xB6
+Want set client state
+	[0]		New State
+
+CLIENT	0xB7		3+
+Want to add friend into friend list
+	[0]		Character name length
+	[1]		Friend ID name length (<=12)
+	[2]		Friend invite msg length (<=30)
+	[3]...  Character name
+	[..]..  Friend ID name
+	[..]..  Invite msg
+
+
+CLIENT	0xB8
+Friending answer
+	[0]		Answer (0 - decline, 1-accept)
+	[1]		Who wanted name length
+	[2]..	Who wanted name
+
+
+CLIENT	0xBA		1+
+Client want to delete friend
+	[0]		Friend name length
+	[1]...	Friend name
+
+
+CLIENT	0xBE		1+
+Client want to send private msg to friend
+	[0]		Friend name length
+	[1]		MSG length
+	[2]...	Friend name
+	[.]...	MSG
+
+
+CLIENT	0xBF
+Client want to create group
+	[0]		New group name length
+	[1]...	New group name
+
+
+CLIENT	0xC0
+Client want to delete group
+	[0]		Group ID
+
+
+CLIENT	0xC1
+Client want to change name of group
+	[0]		Group ID
+	[1]		New name length
+	[2]...	New name
+
+
+CLIENT	0xC2		2+
+Client want move friend from group to group
+	[0]		New groupID
+	[1]		Friend name length
+	[2]...	Friend name
