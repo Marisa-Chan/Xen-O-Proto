@@ -11,16 +11,16 @@
 ;       9 MapBuffObj
 
 ;Character view description
-;	[0]		prof wear?????
-;	[1]		????	
-;	[2]		mount or kigurumi
-;	[3]		hair color + style?   (0-2, 10-12, 20-22)
-;	[4]		hat 
-;	[5]		scarf (only 12 ID?)
-;	[6]		shield
-;	[7]		weapon
-;	[8]		glasses (ID 3 only?)
-;	[9]		backpack
+;	[0]		(BDType) Job + gender (0x80 - gender, 0x7F values - job)
+;	[1]		(WepType)
+;	[2]		(Wear) mount or kigurumi
+;	[3]		(Hair) hair color + style?   (0-2, 10-12, 20-22)
+;	[4]		(Head) hat 
+;	[5]		(Face) scarf (only 12 ID?)
+;	[6]		(ArmLeft) shield
+;	[7]		(ArmRight) weapon
+;	[8]		(Eye) glasses (ID 3 only?)
+;	[9]		(BackPack) backpack
 ;	[10][11]L	effect id??
 ;	[12]		left hand aura effect
 ;	[13]		right hand aura effect
@@ -66,6 +66,12 @@
 ; In Reborn - it's real name string with first special characters: ! @ % # $
 ; Like: "!Salad" - it will be purple "Salad". And "Salad" will be green "Salad"
 
+
+;Protocol version
+; [0][1]L    ??
+; [2][3]L    ??
+; [4][5]L    Codepage. (Text encoding codepage)
+; [6][7]L    ??
 
 ******************************PAKETS*********************************
 ;#####PACKETS#######
@@ -795,6 +801,13 @@ Delete Quest from list
 
 
 
+SERVER  0xC0(0xA5)  9
+Flags: 
+Result for ExecSvrLuaScript. Interrupt waiting for result;
+	[0]				 Subtype 0xA5
+	[1][2][3][4]L    ???? Seems not used. (Or it's script ID for debug)
+	[5][6][7][8]L    Execution result
+
 
 
 *****************************CLIENT->SERVER**********************************
@@ -804,11 +817,13 @@ CLIENT  0xB0		0
 Client want to disconnect
 
 
+
 CLIENT	0xBA(0x11)	3-82
 Send chat message for all
 	[0]		Subtype 0x11
 	[1]		msg length (1-80)
 	[2]...[81]	message
+
 
 
 CLIENT	0xBC(0x16)	5
@@ -825,14 +840,52 @@ CLIENT	0xBC(0x12)	1
 Request for character standup
 	[0]		Subtype 0x12
 
-CLIENT	0xBC(0xAA)	1
-Request for restart, after death
-	[0]		Subtype 0xAA
-
 CLIENT	0xBC(0x19)	2
 Request for emote
 	[0]		Subtype 0x19
 	[1]		emote(0x01 - 0x0c)
 
+CLIENT  0xBC(0x37)  5
+Request for execution Server-side script. Will wait for execution result - 0xC0(A5).
+Parameters for script transmitted by ServerBuffer.
+	[0]				Subtype 0x37
+	[1][2][3][4]L   Script ID
+
+CLIENT	0xBC(0xAA)	1
+Request for restart, after death
+	[0]		Subtype 0xAA
 
 
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CLIENT  0xBF(0x11)  26+
+Hello message on connect. !!!!!!!!!!!!!!!!!!!!!!!!
+	[0]        Subtype 0x11
+	[1]...[8]  Protocol version?
+	[9]...[24] 16 bytes key receieved on 0xD0(0) of 1818 server
+	[25]       MemberID size ( -ID param ). Max length 20.
+	[26]       Selected charname size.
+	[..]..[..] MemberID
+	[..]..[..] Charname  
+
+
+
+
+
+CLIENT  0xD0(0x01)  3
+ServerBuffer.SetSize
+	[0]		  Subtype 0x01
+	[1][2]L   New size of ServerBuffer
+
+CLIENT  0xD0(0x02)  3
+ServerBuffer.SetPosition
+	[0]		  Subtype 0x02
+	[1][2]L   New position in ServerBuffer
+
+CLIENT  0xD0(0x03)  2+
+ServerBuffer.WriteXXX
+	[0]		  Subtype 0x03
+	[1]       Data size
+	[....]    Data
+P.S. For strings - first byte of Data field - is string length, then data size field = string size + 1.

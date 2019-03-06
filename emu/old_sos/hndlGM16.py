@@ -7,6 +7,13 @@ import DNCPacket
 import config
 
 
+def ItemSlot(ID, CNT):
+	bts = bytearray()
+	bts += (ID).to_bytes(2, byteorder = "little")
+	bts += (CNT).to_bytes(2, byteorder = "little")
+	bts += (0).to_bytes(4, byteorder = "little")
+	return bts
+
 def CreateNpc():
 	p = DNCPacket.Packet()
 	p.tp = 0xB1
@@ -34,7 +41,7 @@ def CreateNpc():
 
 	return p
 
-def CreateCharacter(ID, NAME, X, Y):
+def CreateCharacter(ID, NAME, X, Y, admin, guild):
 	UNKSTR=""
 	p = DNCPacket.Packet()
 	p.tp = 0xB1
@@ -53,14 +60,18 @@ def CreateCharacter(ID, NAME, X, Y):
 	p.data.append(50)                      #WalkSpeed    0-59
 	p.data.append(2)                       #Character direction
 	p.data.append(0)                       #state?
-	p.data.append(0)                       #Acc level or iconID or what? (240+ - has "GM" mark)
+	
+	if admin:
+		p.data.append(250)
+	else:
+		p.data.append(0)                       #Acc level or iconID or what? (240+ - has "GM" mark)
 	
 	#++0x13 (19)
 	p.data += X.to_bytes(2, byteorder = "little")  #X coord
 	p.data += Y.to_bytes(2, byteorder = "little")  #Y coord
 	
 	#++0x17 (23)
-	p.data += (0x12345678).to_bytes(4, byteorder = "little")  #???Guild ID??
+	p.data += (guild).to_bytes(4, byteorder = "little")  #???Guild ID??
 	p.data.append(0xCC)                                 #???Something belongs to Guild. May be emblem sequental ID of this guild???    if 0xFF - not in guild or no emblem?, because does not send request for emblem
 	
 	p.data.append(1)                                 #???
@@ -76,6 +87,58 @@ def CreateCharacter(ID, NAME, X, Y):
 	
 	p.data += NAME.encode("UTF-8")
 	p.data += UNKSTR.encode("UTF-8")
+										
+	return p
+
+
+def CreateCharacter2(ID, NAME, X, Y, admin, guild):
+	p = DNCPacket.Packet()
+	p.tp = 0xB1
+	
+	#++0x0
+	p.data.append(1)                       # SubType 1 - create player
+	
+	p.data.append(0)                       # 0 - quite create, 1 - create with sound and splash effect
+	p.data += ID.to_bytes(2, byteorder = "little") # Map object ID
+				
+	#++0x4
+	p.data += bytes(10)                    # Charview bytes
+				
+	#++0xE (14)
+	p.data.append(0)                       #Walk mask 
+	p.data.append(50)                      #WalkSpeed    0-59
+	p.data.append(2)                       #Character direction
+	p.data.append(0)                       #state?
+	
+	# (18)
+	if admin:
+		p.data.append(250)
+	else:
+		p.data.append(0)                       #Acc level or iconID or what? (240+ - has "GM" mark)
+	
+	#++0x13 (19)
+	p.data += X.to_bytes(2, byteorder = "little")  #X coord
+	p.data += Y.to_bytes(2, byteorder = "little")  #Y coord
+	
+	#++0x17 (23)
+	p.data += (guild).to_bytes(4, byteorder = "little")  #???Guild ID??
+	p.data.append(0xCC)                                 #???Something belongs to Guild. May be emblem sequental ID of this guild???    if 0xFF - not in guild or no emblem?, because does not send request for emblem
+	
+	# (28)
+	p.data.append(1)                                 #???
+	p.data.append(1)                                 #???
+	
+	p.data.append(1)                                 #???
+	
+	#++0x1F (31)
+	p.data.append(3)                                 #???
+	p.data += (41393).to_bytes(2, byteorder = "little")  #???
+	
+	# (34)
+	p.data.append( len(NAME) )
+	p.data.append( 0 ) ## Vis bytes
+	
+	p.data += NAME.encode("UTF-8")
 										
 	return p
 
@@ -123,7 +186,7 @@ def Handle(pin):
 
 		p.data.append(0x0)
 	
-		p.data += bytes([10, 0, 0, 0]) #Kron
+		p.data += bytes([10, 0, 1, 0]) #Kron
 		p.data += bytes([0, 0, 0, 0])
 		p.data.append(0x2B) #???
 		p.data.append(0x1) #JOB
@@ -148,25 +211,31 @@ def Handle(pin):
 
 
 		#Create player char
-		p = CreateCharacter(257, "YourChar", 100, 100)
+		p = CreateCharacter(257, "YourChar", 100, 100, True, 12345)
 		
 		retList.append(p)
 
 
 		#Create player char
-		p = CreateCharacter(256, "AAAAAA", 105, 100)
+		p = CreateCharacter(256, "AAAAAA", 105, 100, False, 0)
 		
 		retList.append(p)
 		
 		
-		p = DNCPacket.Packet()
-		p.tp = 0xB5
-		
-		p.data.append(0x1A)
-		p.data.append(1)
-		p.data += (256).to_bytes(2, byteorder = "little")
+		#Create player char
+		p = CreateCharacter(255, "AAAAZZ", 107, 102, False, 0)
 		
 		retList.append(p)
+		
+		
+		#p = DNCPacket.Packet()
+		#p.tp = 0xB5
+		
+		#p.data.append(0x1A)
+		#p.data.append(1)
+		#p.data += (256).to_bytes(2, byteorder = "little")
+		
+		#retList.append(p)
 		
 		
 		
@@ -230,7 +299,7 @@ def Handle(pin):
 				
 				p.data += (84).to_bytes(2, byteorder = "little")
 				p.data.append(6)
-				p.data += "AAAAAA".encode("ascii")
+				p.data += "AAAADD".encode("ascii")
 				p.data += (84).to_bytes(2, byteorder = "little")
 				p.data.append(8)
 				p.data += "YourChar".encode("ascii")
@@ -291,6 +360,156 @@ def Handle(pin):
 				p.data.append(10)
 				
 				print("Send C2 " + p.data.hex())
+				retList.append(p)
+			elif stt == "7":
+				p = DNCPacket.Packet()
+				p.tp = 0xC0
+				
+				p.data.append(2)
+				p.data.append(0)
+				
+				print("Send C0 " + p.data.hex())
+				retList.append(p)
+			elif stt == "trade":
+				p = DNCPacket.Packet()
+				p.tp = 0xC1
+				
+				p.data.append(0x23)
+				p.data += (222555).to_bytes(4, byteorder="little")
+				p.data.append(4)
+				p.data += ItemSlot(1120, 0)
+				p.data += ItemSlot(14273, 0)
+				p.data += ItemSlot(10151, 0)
+				p.data += ItemSlot(4, 4)
+				
+				print("Send C1 " + p.data.hex())
+				retList.append(p)
+			elif stt == "trade2":
+				p = DNCPacket.Packet()
+				p.tp = 0xC1
+				
+				p.data.append(0x24)
+				
+				print("Send C1 " + p.data.hex())
+				retList.append(p)
+			elif stt == "trade22":
+				p = DNCPacket.Packet()
+				p.tp = 0xC1
+				
+				p.data.append(0x22)
+				
+				print("Send C1 " + p.data.hex())
+				retList.append(p)
+			elif stt == "trade25":
+				p = DNCPacket.Packet()
+				p.tp = 0xC1
+				
+				p.data.append(0x25)
+				
+				print("Send C1 " + p.data.hex())
+				retList.append(p)
+			elif stt == "trade11":
+				p = DNCPacket.Packet()
+				p.tp = 0xC1
+				
+				p.data.append(0x11)				
+				
+				print("Send C1 " + p.data.hex())
+				retList.append(p)
+			elif stt == "trade12":
+				p = DNCPacket.Packet()
+				p.tp = 0xC1
+				
+				p.data.append(0x12)
+				p.data.append(1)
+				p.data += bytearray((0xF3,0x0C, 2, 00, 00, 00, 00 ,00,     8, 00, 00, 00))
+				
+				print("Send C1 " + p.data.hex())
+				retList.append(p)
+			elif stt == "trade13":
+				p = DNCPacket.Packet()
+				p.tp = 0xC1
+				
+				p.data.append(0x13)
+				p.data.append(2)
+				p.data += ItemSlot(1120, 1)
+				p.data += (22).to_bytes(4, byteorder="little")
+				p.data += ItemSlot(4, 5)
+				p.data += (33).to_bytes(4, byteorder="little")
+				
+				
+				print("Send C1 " + p.data.hex())
+				retList.append(p)
+			elif stt == "trade15":
+				p = DNCPacket.Packet()
+				p.tp = 0xC1
+				
+				p.data.append(0x15)
+				p.data += (256).to_bytes(2, byteorder="little")
+				p.data.append(6)
+				p.data += "Jopppa".encode("ascii")
+				
+				
+				print("Send C1 " + p.data.hex())
+				retList.append(p)
+			elif stt == "tradecc":
+				p = DNCPacket.Packet()
+				p.tp = 0xB1
+				
+				p.data.append(5)
+				p.data.append(0)
+				p.data += (0xDCAC).to_bytes(2, byteorder="little")
+				p.data += (95).to_bytes(2, byteorder="little")
+				p.data += (90).to_bytes(2, byteorder="little")
+				p.data.append(8)
+				p.data += "Shoppetz".encode("ascii")				
+				
+				print("Send B1 " + p.data.hex())
+				retList.append(p)
+			elif stt == "viz":
+				p = DNCPacket.Packet()
+				p.tp = 0xB5
+				
+				p.data.append(35)
+				p.data.append(1)
+				p.data += (256).to_bytes(2, byteorder="little")
+				
+				visbuff = bytearray( (9, ) )
+				
+				p.data.append( len(visbuff) )
+				p.data += visbuff
+		
+				retList.append(p)
+			
+			elif stt == "mob":
+				p = DNCPacket.Packet()
+				p.tp = 0xB1
+				
+				p.data.append(2)
+				p.data.append(0)
+				p.data += (111).to_bytes(2, byteorder="little")
+				p.data += (1).to_bytes(2, byteorder="little")
+				
+				p.data.append(0)
+				p.data.append(30)
+				p.data.append(6)
+				p.data.append(5)
+				
+				p.data.append(10)
+				
+				p.data += (90).to_bytes(2, byteorder="little")
+				p.data += (90).to_bytes(2, byteorder="little")
+				
+				p.data.append(0x80)
+				p.data.append(2)
+				
+				p.data.append(0)
+				#p.data.append(0)
+		
+				retList.append(p)
+			elif stt == "chr":
+				p = CreateCharacter2(111, "ZZZ", 95, 100, False, 0)
+		
 				retList.append(p)
 			
 		elif (pin.data[0] == 0x12):
@@ -384,6 +603,35 @@ def Handle(pin):
 			retList.append(p)
 		else:
 			print("Recvd pkt {} {} ".format(hex(pin.tp), len(pin.data)) + pin.data.hex())
+	elif (pin.tp == 0xC1):
+		print("Recvd pkt {} {} ".format(hex(pin.tp), len(pin.data)) + pin.data.hex())
+		if (pin.data[0] == 0x20):
+			name = pin.data[2:]
+			p = DNCPacket.Packet()
+			p.tp = 0xC1
+			
+			p.data.append(0x21)
+			p.data.append( len(name) )
+			p.data += name
+			
+			print("Send C1 " + p.data.hex())
+			retList.append(p)
+		elif (pin.data[0] == 0x13):
+			objID = int.from_bytes(pin.data[1:], byteorder="little")
+			
+			p = DNCPacket.Packet()
+			p.tp = 0xC1
+			
+			p.data.append(0x13)
+			p.data.append(2)
+			p.data += ItemSlot(1120, 1)
+			p.data += (22).to_bytes(4, byteorder="little")
+			p.data += ItemSlot(4, 5)
+			p.data += (33).to_bytes(4, byteorder="little")
+			
+			print("Send C1 " + p.data.hex())
+			retList.append(p)
+			
 	elif (pin.tp == 0xC4): #Guild things requests
 		print ("Recvd pkt 0xC4 {}: ".format(hex(pin.data[0])) + pin.data.hex() )
 		if (pin.data[0] == 0x10): #Want emblem for guild

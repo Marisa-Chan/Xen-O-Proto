@@ -223,14 +223,14 @@ Change character view
 
 
 SERVER	0xB5(0x1A)		4
-Set character friend flag
+Set character friend(or block??) flag
 	[0]		Subtype 0x1A
 	[1]		Scope ID == 1 
 	[2][3]L		MAP obj ID
 
 
 SERVER	0xB5(0x1B)		4
-Clean character friend flag
+Clean character friend(or block??) flag
 	[0]		Subtype 0x1B
 	[1]		Scope ID == 1 
 	[2][3]L		MAP obj ID
@@ -247,13 +247,13 @@ SERVER	0xC0(2)		2
 Flags:	E
 Set allow/disable bits(forms/party/etc)
 	[0]		Subtype 0x2
-	[1]		Bits (1,2,8,0x20)
+	[1]		Disable Bits (1,2,8,0x20) 1- whisper, 2- 11trade, 8- allow party request, 0x20 - info confirm
 
 
 SERVER	0xC0(3)		2
 Change player info character Job
 	[0]		Subtype 0x3
-	[1]		new job(0-24)
+	[1]		new job(0-24) and sex (0x80 bit)
 
 
 SERVER	0xC0(4)		2
@@ -524,7 +524,7 @@ SERVER	0xC0(0x4A)	10
 Flags: E
 Get item in party/lot/automat
 	[0]		Subtype 0x4A
-	[1]		0 - automat, 1 - lot, 2 - normal add, 0xb0 - only chat msg(??party get??), 0xd0 - add item without chat log
+	[1]		0 - automat, 1 - lot, 2 - normal add, 0xa0 - set in smelt, 0xb0 - only chat msg(??party get??), 0xd0 - add item without chat log
 	[2]..8bt..[9]	ItemSlot
 
 
