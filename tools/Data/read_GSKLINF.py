@@ -3,6 +3,7 @@
 import EraDra
 import os
 import io
+import struct
 
 
 JOBS = {
@@ -86,11 +87,83 @@ for elm in arc.items:
 			else:
 				jobs_str += " 0x{:02x},".format( jb )
 	
+	
+	
+	C1EffectID = None
+	
+	if tp >= 0x12:
+		itmInf.seek(0x18 + 0xA)
+		bz = int.from_bytes( itmInf.read(2), byteorder = "little")
+		if bz:
+			C1EffectID = str( bz )
+			
+			
+	
+	C0EffectID = None
+	C0Prep = None
+	
+	if tp >= 0x12:
+		itmInf.seek(0x1A)
+		bz = int.from_bytes( itmInf.read(2), byteorder = "little")
+		if bz:
+			C0EffectID = str( bz )
+		
+		itmInf.seek(0x18 + 0x24)
+		
+		bz = itmInf.read(1)[0]
+		if ((bz & 4) != 4):
+			itmInf.seek(0x18 + 0x31)
+			f1 = struct.unpack('<f', itmInf.read(4))[0]
+			f2 = struct.unpack('<f', itmInf.read(4))[0]
+			f3 = struct.unpack('<f', itmInf.read(4))[0]
+			if ( f1 > 0.0 or f2 > 0.0 or f3 > 0.0):
+				C0Prep = "(SkillLVL * {:0.3f} + 1.0) * {:0.3f} + {:0.3f} + BE.word4B".format(f2, f1, f3)
+	
+	
+	
+	C2EffectID = None
+	
+	if tp >= 0x12:
+		itmInf.seek(0x1E)
+		bz = int.from_bytes( itmInf.read(2), byteorder = "little")
+		if bz:
+			C2EffectID = str( bz )
+	
+	TP31Eff = None
+	itmInf.seek(0x18 + 0x12)
+	bz = int.from_bytes( itmInf.read(2), byteorder = "little")
+	if bz:
+		TP31Eff = str( bz )
+	
+	
+	EFEff = None
+	itmInf.seek(0x18 + 0x0E)
+	bz = int.from_bytes( itmInf.read(2), byteorder = "little")
+	if bz:
+		EFEff = str( bz )
+	
+	
 	print(elm.ID)
 	print("Type: " + hex(tp))
 	print(title)
 	if jobs_cnt:
 		print("Jobs: ", jobs_str)
+	if C0EffectID:
+		print("C0 Effect ID: " + C0EffectID)
+	if C0Prep:
+		print("C0 Prep time: " + C0Prep)
+	if C1EffectID:
+		print("C1 Effect ID: " + C1EffectID)
+	
+	if C2EffectID:
+		print("C2 Effect ID: " + C2EffectID)
+	
+	if TP31Eff:
+		print("C3 Event Effect ID: " + TP31Eff)
+	
+	if EFEff:
+		print("C3 Effect ID: " + EFEff)
+		
 	print(descr)
 	print()
 
