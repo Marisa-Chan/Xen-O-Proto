@@ -214,26 +214,230 @@ SERVER	0xB5(0x17)	9
 	[8]		???????
 
 
-SERVER	0xB5(0x18)(1)	18
+SERVER	0xB5(0x18)(1)	14
 Change character view
 	[0]		Subtype 0x18
 	[1]		Scope ID == 1 
 	[2][3]L		MAP obj ID
-	[4]...[18]	character view
+	[4]...[14]	character view
+
+
+SERVER	0xB5(0x18)(2)	6
+Change mob body ID
+	[0]		Subtype 0x18
+	[1]		Scope ID == 2
+	[2][3]L		MAP obj ID
+	[4][5]L		New mob body ID
+
+
+SERVER	0xB5(0x18)(3)	6
+Change NPC body ID
+	[0]		Subtype 0x18
+	[1]		Scope ID == 3
+	[2][3]L		MAP obj ID
+	[4][5]L		New npc body ID
+
+
+SERVER	0xB5(0x18)(4)	6
+Change Item body ID
+	[0]		Subtype 0x18
+	[1]		Scope ID == 4
+	[2][3]L		MAP obj ID
+	[4][5]L		New Item body ID
+
+
+SERVER	0xB5(0x19)		5
+Set new movement mask
+	[0]		Subtype 0x19
+	[1]		Scope ID
+	[2][3]L		MAP obj ID
+	[4]		Movement mask
 
 
 SERVER	0xB5(0x1A)		4
-Set character friend(or block??) flag
+Set character ignore flag
 	[0]		Subtype 0x1A
 	[1]		Scope ID == 1 
 	[2][3]L		MAP obj ID
 
 
 SERVER	0xB5(0x1B)		4
-Clean character friend(or block??) flag
+Clean character ignore flag
 	[0]		Subtype 0x1B
 	[1]		Scope ID == 1 
 	[2][3]L		MAP obj ID
+
+
+SERVER	0xB5(0x1C)		5
+Set object's hit-bend flag. If 0 - hitted character will bend (change state to 2), else - not bend on hit (not change state).
+	[0]		Subtype 0x1C
+	[1]		Scope ID
+	[2][3]L		MAP obj ID
+	[4]		hit-bend flag
+
+
+SERVER	0xB5(0x1D)		5
+Set mob ??? flag
+	[0]		Subtype 0x1D
+	[1]		Scope ID == 2
+	[2][3]L		MAP obj ID
+	[4]		??? flag  ( 0x40 - no attack cursor and action? , another???)
+
+
+SERVER	0xB5(0x21)		6+
+Add visual bytes
+	[0]		Subtype 0x21
+	[1]		Scope ID
+	[2][3]L		MAP obj ID
+	[4]		bytes count
+	[5]+... visual bytes
+
+
+SERVER	0xB5(0x22)		6+
+Delete visual bytes
+	[0]		Subtype 0x22
+	[1]		Scope ID
+	[2][3]L		MAP obj ID
+	[4]		bytes count
+	[5]+... visual bytes
+
+
+SERVER	0xB5(0x23)		6+
+Set visual bytes
+	[0]		Subtype 0x23
+	[1]		Scope ID
+	[2][3]L		MAP obj ID
+	[4]		bytes count
+	[5]+... visual bytes
+
+
+SERVER	0xB5(0x31)		5
+Set character access level (GM flag on >= 240)
+	[0]		Subtype 0x31
+	[1]		Scope ID
+	[2][3]L		MAP obj ID
+	[4]		Acc level
+
+
+SERVER	0xB5(0xB0)		6
+Set new state and direction
+	[0]		Subtype 0xB0
+	[1]		Scope ID
+	[2][3]L		MAP obj ID
+	[4]		New state
+	[5]		New direction
+
+
+SERVER	0xB5(0xB1)		12+
+Autoattack ?
+	[0]		Subtype 0xB1
+	[1]		Scope ID
+	[2][3]L		MAP obj ID  (damage receiver)
+	[4]		Scope ID        (can be 0)
+	[5][6]L		MAP obj ID  (damage caster) (can be 0)
+	[7]		Frame data sync lookup (state index)
+	[8]		Max strike chain
+	[9]		Num of strikes type 2
+	[10]	Num of strikes type 1
+	[11]	Some effect must appear on caster when do strikes type 1 and his state == 12 ??? (possible values 0-5)
+	[12]+...	2bt * (type1 + type2)   Damage array. (0x8000 - critical strikes flag)
+
+
+SERVER	0xB5(0xB2)		6
+Red field effect and float value
+	[0]		0xB2
+	[1]		Scope ID != 4
+	[2][3]L		MAP obj ID
+	[4][5]L		Value
+
+
+SERVER	0xB5(0xB3)		6
+Blue field effect and float value
+	[0]		0xB3
+	[1]		Scope ID != 4
+	[2][3]L		MAP obj ID
+	[4][5]L		Value
+
+
+SERVER	0xB5(0xB4)		5
+Set mob HP bar
+	[0]		0xB4
+	[1]		Scope ID == 2 (only mobs)
+	[2][3]L		MAP obj ID
+	[4]			HP value (0-20)
+
+
+SERVER	0xB5(0xC0)		8
+Set state and direction and show skill effect "C0" + preparation
+	[0]			0xC0
+	[1]			Scope ID 
+	[2][3]L		MAP obj ID
+	[4]			State value
+	[5]			Direction
+	[6][7]L		SkillID
+
+
+SERVER	0xB5(0xC1)		6
+Show skill effect "C1"
+	[0]			0xC1
+	[1]			Scope ID 
+	[2][3]L		MAP obj ID
+	[4][5]L		SkillID
+
+
+SERVER	0xB5(0xC2)		7
+Set state and show skill effect "C2"
+	[0]			0xC2
+	[1]			Scope ID 
+	[2][3]L		MAP obj ID
+	[4]			State value
+	[5][6]L		SkillID
+
+
+SERVER	0xB5(0xC3)		14
+Cast skill from obj2 to obj1?
+	[0]			0xC3
+	[1]			Scope ID 
+	[2][3]L		MAP obj1 ID
+	[4]			Scope ID
+	[5][6]L		MAP obj2 ID
+	[7]			State for framedata
+	[8][9]L		SkillID
+	[10][11][12][13]L	Damage (0x80000000 - crit) 
+
+
+SERVER	0xB5(0xC5)		4
+Cancel skill cast
+	[0]			0xC5
+	[1]			Scope ID 
+	[2][3]L		MAP obj ID
+
+
+SERVER	0xB5(0xC6)		4
+Change alter view(look like a MOB) of character.
+	[0]			0xC6
+	[1]			Scope ID == 1
+	[2][3]L		MAP obj ID
+	[4]			MODE (3 - mob, else - normal character)
+	[5][6]L		Mob body base ID.
+
+
+SERVER	0xB5(0xFE)		4
+Reset player (also from death state)
+	[0]			0xFE
+	[1]			Scope ID 
+	[2][3]L		MAP obj ID
+
+
+SERVER	0xB5(0xFF)		4
+Kill object with disappear
+	[0]			0xFE
+	[1]			Scope ID 
+	[2][3]L		MAP obj ID
+
+
+
+
 
 
 SERVER	0xC0(1)		9
