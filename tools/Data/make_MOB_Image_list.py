@@ -4,94 +4,102 @@ import EraDra
 from PIL import Image as pimg
 import os
 import sys
+import io
 
 class bdid:
-	bodyID = 0
-	bid = 0
-	frameID = 0
-	C2 = 0
+	baseID = 0
+	ID = 0
 
-def makeMOB_BodyList(eye, state):
+
+def LoadMobsInfo():
 	arc = EraDra.TEra( "GMOBINF.DRA" )
 
 	items = list()
-	
-	C2 = dict()
 
 	for elm in arc.items:
-		
-		#if (elm.ID & 0xFF) == ((eye << 5) | (state & 0x1F)):
 		itmInf = arc.readItem(elm)
-		t = bdid()			
-		t.bodyID = elm.ID
-		t.C2 = int.from_bytes(itmInf[:2], byteorder="little")
-		C2[ t.C2 ] = t
+		t = bdid()
+		t.ID = elm.ID
+		t.baseID = int.from_bytes( itmInf[:2], byteorder="little" )
 		
 		items.append(t)
-		#print (elm.ID & 0x1F)
 	
-	arc = EraDra.TEra( "GMBFC.XBD" )
-
-	for elm in arc.items:
-		if (elm.ID & 0xFF) == ((eye << 5) | (state & 0x1F)):
-			C2ID = (elm.ID >> 8) & 0xFFFF
-			
-			if C2ID in C2:
-				itmInf = arc.readItem(elm)
-				t = C2[C2ID]
-				t.bid = int.from_bytes(itmInf[:4], byteorder="little")
-			else:
-				print("Can't find")
 	return items
 
+def LoadMobsBodyInfo():
+	arc = EraDra.TEra( "GMBFC.XBD" )
 
-def makeFrameIDS(st, frame):
-	arc = EraDra.TDra( "GMBID.DRA" )
+	items = dict()
 
 	for elm in arc.items:
-		for n in st:
-			if elm.ID == n.bid:
-				mm = arc.readItem(elm)
-				
-				if (frame < mm[0]):
-					n.frameID = int.from_bytes(mm[1 + frame * 4 : 1 + frame * 4 + 4], byteorder="little")
-				else:
-					n.frameID = int.from_bytes(mm[1:5], byteorder="little")
+		itmInf = arc.readItem(elm)
+		
+		items[elm.ID] = itmInf
+	
+	return items
 
+def LoadMobsSeq():
+	arc = EraDra.TDra( "GMBID.DRA" )
 
-nm = "GMBMP"
+	items = dict()
 
-d = makeMOB_BodyList(6, 5)
-makeFrameIDS(d, 0)
+	for elm in arc.items:
+		itmInf = arc.readItem(elm)
+		
+		items[elm.ID] = itmInf
+	
+	return items
 
-arc = EraDra.TLst( nm )
+mobs = LoadMobsInfo()
+mbody = LoadMobsBodyInfo()
+mseq = LoadMobsSeq()
+
+arc = EraDra.TLst( "GMBMP" )
+
+mframes = dict()
+
+for elm in arc.items:
+	mframes[elm.ID] = elm
+
+STATE = 5
+EYE = 6
+FRAME = 0
 
 outDIR = "MOB_help"
-
-jj = 0
 
 if not (os.path.isdir(outDIR)):
     os.mkdir(outDIR)
 
-num = len(d)
+num = len(mobs)
+ii = 0
 
-for elm in arc.items:
-	skip = True
+for mob in mobs:
+	ii += 1
 	
-	i = None
+	print( "{:d}/{:d}".format(ii, num) )
 	
-	for n in d:
-		if (n.frameID == elm.ID):
-			skip = False
-			i = n
-			break
-	
-	if skip:
+	bodyID = (STATE & 0x1F) | ((EYE & 7) << 5) | ((mob.baseID & 0xFFFF) << 8)
+		
+	if not bodyID in mbody:
+		print("No body ID for mob:", mob.ID)
 		continue
 	
-	d.remove(i)
-
-	itm = arc.readItem(elm)
+	seqID = int.from_bytes( mbody[bodyID][:4], byteorder="little")
+	
+	if not seqID in mseq:
+		print("No Sequence for mob:", mob.ID)
+		continue
+	
+	seq = mseq[seqID]
+	
+	frameID = int.from_bytes( seq[1:5], byteorder="little")
+	
+	if not frameID in mframes:
+		print("No frame for mob:", mob.ID)
+		continue
+	
+	
+	itm = arc.readItem( mframes[frameID] )
 
 	w = itm[0] | (itm[1] << 8)
 	h = itm[2] | (itm[3] << 8)
@@ -141,15 +149,4 @@ for elm in arc.items:
 
 		xpg += 1
 
-	img.save(outDIR + "/" + str(i.bodyID) + "_(" + str(i.C2) + ").png")
-
-	jj += 1
-
-	print("{:d}/{:d}".format(jj, num))
-
-
-
-
-
-
-
+	img.save(outDIR + "/" + str(mob.ID) + "_(" + str(mob.baseID) + ").png")
