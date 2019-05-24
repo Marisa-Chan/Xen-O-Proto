@@ -113,6 +113,17 @@ Create NPC
 	[21]...		Name string. NPCName. Multilang: Name must be STRING like "1", "661". Real name will be readed from GameSvrNpc.mdlr
 
 
+SERVER  0xB1(0x04)
+Create drop item
+	[0]			Subtype 4
+	[1]			0 - fade in, 1 - drop effect
+	[2][3]L		MAP obj ID
+	[4][5]L		item ID
+	[6][7]L		count
+	[8][9]L		X
+	[10][11]L	Y
+
+
 SERVER  0xB2(0x03)	25+
 Create goes NPC from xy to dst xy 
 P.S.: NPC doesn't have go animation??? 
@@ -1016,6 +1027,22 @@ Delete Quest from list
 	[1][2]		QuestSlot
 
 
+SERVER  0xC0(0xA3)	3
+Flags: ??
+Server answer result (needed for some things, like if register quest awaits for it)
+	[0]		Subtype 0xA3
+	[1][2]		QuestSlot
+	[3]			Server answer
+
+
+SERVER  0xC0(0xA4)	3
+Flags: ??
+Server answer result (needed for some things, like if register quest awaits for it)
+Seems also mark quest as completed if quest alreadt added into list.
+	[0]		Subtype 0xA4
+	[1][2]		QuestSlot
+	[3]			Server answer
+
 
 SERVER  0xC0(0xA5)  9
 Flags: 
@@ -1024,6 +1051,29 @@ Result for ExecSvrLuaScript. Interrupt waiting for result;
 	[1][2][3][4]L    ???? Seems not used. (Or it's script ID for debug)
 	[5][6][7][8]L    Execution result
 
+
+
+
+
+
+
+SERVER	0xC0(0xC1)
+Flags:
+Set user message box list
+	[0]				Subtype 0xC1
+	[1]				Message list (0, 1, 2)
+	[2][3]L			Total number of messages
+	[4]				Number of messages to load for current page
+	[..]...+        MSGS * num;
+	
+MSGS:
+	[0][1][2][3][4][5][6][7]L	MSGID
+	[8].12bt.[19]	Sender name (12bytes)
+	[20][21][22][23]   DATE (format   YYYYAABB ->   YYYY * 10000 + AA * 100 + BB)
+	[24]			Status (0 - unread, 1 - opened, 2 - locked)
+	[25]			???
+	[26]			MsgLen
+	[27]....		Msg
 
 
 
@@ -1061,6 +1111,12 @@ CLIENT	0xBC(0x19)	2
 Request for emote
 	[0]		Subtype 0x19
 	[1]		emote(0x01 - 0x0c)
+
+CLIENT  0xBC(0x34)  5
+Request for register quest
+	[0]				Subtype 0x34
+	[1][2]L   NPC ID
+	[3][4]L	  Quest ID
 
 CLIENT  0xBC(0x37)  5
 Request for execution Server-side script. Will wait for execution result - 0xC0(A5).
