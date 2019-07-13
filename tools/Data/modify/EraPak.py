@@ -38,6 +38,7 @@ def main():
 		print("clist - compress content list (0,1)")
 		print("cfiles - compress files (0,1)")
 		print("cp | cpage | codepage - codepage of text (default 437)")
+		print("l | lvl | level - compression level (0-9,-1  default -1)")
 		print("")
 		print("Example: script.py -o=out.era -s=4 -clist=1 /dir/with/files")
 		print("")
@@ -48,6 +49,7 @@ def main():
 	clist = 1
 	cfiles = 1
 	codepage = 437
+	level = -1
 	indir = ""
 	dr = None
 	
@@ -71,7 +73,11 @@ def main():
 				if (cfiles != 0):
 					cfiles = 1
 			elif (op == "codepage" or op == "cpage" or op == "cp"):
-				codepage = int(val)				
+				codepage = int(val)
+			elif (op == "l" or op == "lvl" or op == "level"):
+				level = int(val)
+				if level < -1 or level > 9:
+					level = -1			
 		elif os.path.isdir(f):
 			indir = f
 	
@@ -84,6 +90,7 @@ def main():
 	print("Compress files list: " + str(clist))
 	print("Compress files: " + str(cfiles))
 	print("Codepage: " + str(codepage))
+	print("Compress level: " + str(level))
 	print("Input dir : " + indir)
 	
 	entries = os.listdir(indir)
@@ -133,7 +140,7 @@ def main():
 			shiftdata(pp, shift)
 		
 		if (cfiles != 0):
-			pp = zlib.compress(pp)
+			pp = zlib.compress(pp, level=level)
 		
 		outfile.write( decsz.to_bytes(4, byteorder = "little") )
 		outfile.write( (len(pp)).to_bytes(4, byteorder = "little") )
@@ -143,7 +150,7 @@ def main():
 	contoff = outfile.tell()
 		
 	if (clist != 0):
-		contlst = zlib.compress(contlst)
+		contlst = zlib.compress(contlst, level=level)
 	
 	outfile.write( contlst )
 	
