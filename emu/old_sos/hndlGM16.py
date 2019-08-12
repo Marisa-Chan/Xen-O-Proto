@@ -266,6 +266,27 @@ def Handle(pin):
 		retList.append(p)
 
 		print("OK")
+	elif (pin.tp == 0xB0):
+		print("Packet 0xB0: Want disconnect")
+
+
+		#hide 
+		p = DNCPacket.Packet()
+		p.tp = 0xB0
+
+		p.data.append(0x12)  
+		
+		retList.append(p)
+		
+		
+		p = DNCPacket.Packet()
+		p.tp = 3
+
+		p.data += (0).to_bytes(2, byteorder = "little")
+		p.wait = time.time() + 1 #we must wait because fadeout window will be rerun with this
+		retList.append(p)
+		
+		
 	elif (pin.tp == 0xBA):
 		print("Packet 0xBA:")
 		if (pin.data[0] == 0x11):
@@ -369,6 +390,37 @@ def Handle(pin):
 				p.data.append(0)
 				
 				print("Send C0 " + p.data.hex())
+				retList.append(p)
+			elif stt == "10":
+				# spin roulette
+				p = DNCPacket.Packet()
+				p.tp = 0xC0
+
+				p.data.append(0xA7)
+				p.data.append(1) # 1 or 2 same result
+				p.data.append(1)
+				p.data.append(1)
+				p.data.append(1)
+				retList.append(p)
+
+				# normaly I have a 3 second timer after this one to apply the buff when the roulette stops spinning
+
+				# set buff
+				p = DNCPacket.Packet()
+				p.tp = 0xC0
+
+				p.data.append(0x41) # also tried 0x44
+				p.data += (6534).to_bytes(2, byteorder = "little") # super rampage buff 2438 lvl 1
+				#p.data += (600000).to_bytes(4, byteorder = "little") # buff time
+				retList.append(p)
+
+				# execute roulette script
+				p = DNCPacket.Packet()
+				p.tp = 0xB0
+
+				p.data.append(0x30)
+				p.data.append(1)
+				p.data += (7777).to_bytes(2, byteorder = "little")
 				retList.append(p)
 			elif stt == "trade":
 				p = DNCPacket.Packet()

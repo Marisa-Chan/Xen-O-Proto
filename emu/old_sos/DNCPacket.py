@@ -13,6 +13,7 @@ class Packet:
 	tp = 0
 	pktid = 0
 	data = None
+	wait = 0
 	
 	def __init__(self):
 		self.data = bytearray()

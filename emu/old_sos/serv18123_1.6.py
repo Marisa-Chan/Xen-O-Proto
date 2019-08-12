@@ -21,34 +21,59 @@ class connThread(threading.Thread):
 
 	def run(self):
 		global pktid
+		
+		pktwait = list()
+		self.conn.setblocking(0)
 
 		while(True):
 			outbuf = bytearray()
+			time.sleep(0.01)
             
-			data = self.conn.recv(8192)
-			if (len(data) == 0):
-				break
+			try:
+				data = self.conn.recv(8192)
+			except:
+				pktwait2 = list()
+				for p in pktwait:
+					#print(hex(p.tp))
+					if p.wait < time.time():
+						p.pktid = pktid
+						DNCPacket.placePkt(p, outbuf, self.conn, True)
+						
+						pktid += 1
+					else:
+						pktwait2.append(p)
+				
+				if (len(outbuf) > 0):
+					DNCPacket.sendOutBuf(outbuf, self.conn) 
+				
+				pktwait = pktwait2
+			else:
+				if len(data) == 0:
+					break
+				else:
+					data = bytearray(data)
 			
-			data = bytearray(data)
-			
-			pin = DNCPacket.getPkt(data, True)
+					pin = DNCPacket.getPkt(data, True)
             
-			while(pin != None):
+					while(pin != None):
 				
-				importlib.reload(hndlGM16)
+						importlib.reload(hndlGM16)
 				
-				pkt = hndlGM16.Handle(pin)
+						pkt = hndlGM16.Handle(pin)
 				
-				for p in pkt:
-					p.pktid = pktid
-					DNCPacket.placePkt(p, outbuf, self.conn, True)
-					pktid += 1
+						for p in pkt:
+							if p.wait == 0:
+								p.pktid = pktid
+								DNCPacket.placePkt(p, outbuf, self.conn, True)
+								pktid += 1
+							else:
+								pktwait.append(p)
 				
 								
-				pin = DNCPacket.getPkt(data, True)
+						pin = DNCPacket.getPkt(data, True)
 			
-			if (len(outbuf) > 0):
-				DNCPacket.sendOutBuf(outbuf, self.conn) 
+					if (len(outbuf) > 0):
+						DNCPacket.sendOutBuf(outbuf, self.conn) 
 
 		self.conn.close()
 		print("Thread Exit")
