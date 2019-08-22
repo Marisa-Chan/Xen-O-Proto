@@ -397,14 +397,24 @@ def Handle(pin):
 				p.tp = 0xC0
 
 				p.data.append(0xA7)
-				p.data.append(1) # 1 or 2 same result
+				p.data.append(0) # 1 or 2 same result
+				p.data.append(0)
+				p.data.append(0)
+				p.data.append(0)
+				retList.append(p)
+				
+				# spin roulette
+				p = DNCPacket.Packet()
+				p.tp = 0xC0
+
+				p.data.append(0xA7)
+				p.data.append(2) # 1 or 2 same result
 				p.data.append(1)
 				p.data.append(1)
 				p.data.append(1)
 				retList.append(p)
-
-				# normaly I have a 3 second timer after this one to apply the buff when the roulette stops spinning
-
+				
+				
 				# set buff
 				p = DNCPacket.Packet()
 				p.tp = 0xC0
@@ -413,15 +423,7 @@ def Handle(pin):
 				p.data += (6534).to_bytes(2, byteorder = "little") # super rampage buff 2438 lvl 1
 				#p.data += (600000).to_bytes(4, byteorder = "little") # buff time
 				retList.append(p)
-
-				# execute roulette script
-				p = DNCPacket.Packet()
-				p.tp = 0xB0
-
-				p.data.append(0x30)
-				p.data.append(1)
-				p.data += (7777).to_bytes(2, byteorder = "little")
-				retList.append(p)
+				
 			elif stt == "trade":
 				p = DNCPacket.Packet()
 				p.tp = 0xC1
@@ -636,6 +638,20 @@ def Handle(pin):
 			p.data.append(smltres)
 		
 			retList.append(p)
+		elif (pin.data[0] == 0x38):
+			rulet = pin.data[1] | (pin.data[2] << 8)
+			
+			p = DNCPacket.Packet()
+			p.tp = 0xC0
+
+			#++0x0
+			p.data.append(0xA6)
+			p.data + (rulet).to_bytes(4, byteorder="little")
+			
+			p.data.append(1)
+		
+			retList.append(p)
+			print("Rulet :", rulet)
 			
 	elif (pin.tp == 0xC2):
 		if (pin.data[0] == 0x16):

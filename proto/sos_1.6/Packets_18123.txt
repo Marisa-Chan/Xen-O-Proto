@@ -1052,6 +1052,22 @@ Result for ExecSvrLuaScript. Interrupt waiting for result;
 	[5][6][7][8]L    Execution result
 
 
+SERVER	0xC0(0xA6)	6
+Flags: 
+Set result of "PowerLevel.ReqCheckScore" call. (Related client 0xBC(0x38))
+	[0]				Subtype 0xA6
+	[1][2][3][4]L   ???? Seems not used. (Or it's score level)
+	[5]				Result
+	
+
+SERVER	0xC0(0xA7)	5
+Flags: 
+Call PowerLevel functions
+	[0]				Subtype 0xA7
+	[1]				Function to call: 0 - OnInitRoulette, 1 - OnRotateRoulette, 2 - OnExecuteRoulette
+	[2]				1st param
+	[3]				2nd param
+	[4]				3rd param
 
 
 
@@ -1123,6 +1139,11 @@ Request for execution Server-side script. Will wait for execution result - 0xC0(
 Parameters for script transmitted by ServerBuffer.
 	[0]				Subtype 0x37
 	[1][2][3][4]L   Script ID
+
+CLIENT  0xBC(0x38)  5
+After roulette stops on values it will request for "PowerLevel.ReqCheckScore" check on server side. Will wait for result - 0xC0(A6).
+	[0]				Subtype 0x38
+	[1][2][3][4]L	Roulette score
 
 CLIENT	0xBC(0xAA)	1
 Request for restart, after death
