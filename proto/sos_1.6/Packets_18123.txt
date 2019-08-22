@@ -1108,6 +1108,10 @@ Send chat message for all
 	[2]...[81]	message
 
 
+CLIENT  0xBB(0x24)	21
+Request from lua "Coupon.Use" (will wait for 0xC0(0xAA/0xAB) server packet)
+	[0]			Subtype 0x24
+	[1]..[20]	Coupon??? (20 bytes)
 
 CLIENT	0xBC(0x16)	5
 Request for character move to XY
@@ -1128,6 +1132,14 @@ Request for emote
 	[0]		Subtype 0x19
 	[1]		emote(0x01 - 0x0c)
 
+
+CLIENT  0xBC(0x35)  ??
+???Something with sell/buy or script "Quest.Execute"??? (Will await for C0(A3/A4) packet with answer)
+	[0]				Subtype 0x35
+	[1][2]L			???NPC ID or player ID???
+	[3][4]L			???Item???
+
+
 CLIENT  0xBC(0x34)  5
 Request for register quest (Will await for C0(A3/A4) packet with answer)
 	[0]				Subtype 0x34
@@ -1135,7 +1147,7 @@ Request for register quest (Will await for C0(A3/A4) packet with answer)
 	[3][4]L	  Quest ID
 
 CLIENT  0xBC(0x37)  5
-Request for execution Server-side script. Will wait for execution result - 0xC0(A5).
+Request for execution Server-side script ("Lua.ExecSvrLuaScript"). Will wait for execution result - 0xC0(A5).
 Parameters for script transmitted by ServerBuffer.
 	[0]				Subtype 0x37
 	[1][2][3][4]L   Script ID
@@ -1163,6 +1175,43 @@ Hello message on connect. !!!!!!!!!!!!!!!!!!!!!!!!
 	[..]..[..] MemberID
 	[..]..[..] Charname  
 
+
+
+
+CLIENT	0xC9(0x10) 6+
+Request from lua "House.CreateHouse" (Will wait for server answer packet 0xC0(0xD0-0xD5))
+	[0]			Subtype 0x10
+	[1][2][3][4]L	??id??
+	[5]				Name size???
+	[6]...+			Name???
+
+
+CLIENT	0xC9(0x11) 3+
+Request from lua "House.ListByCharID" (Will wait for server answer packet 0xC0(0xD0-0xD5))
+	[0]			Subtype 0x11
+	[1]				Name size???
+	[2]...+			Name???
+
+
+CLIENT	0xC9(0x12) 8
+Request from lua "House.ListByBulkID" (Will wait for server answer packet 0xC0(0xD0-0xD5))
+	[0]			Subtype 0x12
+	[1][2][3][4]L	Bulk id????
+	[5][6]L			????
+	[7]				????
+
+
+CLIENT	0xC9(0x13) 10
+Request from lua "House.UpdateOption" (Will wait for server answer packet 0xC0(0xD0-0xD5))
+	[0]			Subtype 0x13
+	[1][2][3][4][5][6][7][8]L	???Some int64???
+	[9]				????
+
+
+CLIENT	0xC9(0x16) 10
+Request from lua "House.AddUseDate" (Will wait for server answer packet 0xC0(0xD0-0xD5))
+	[0]			Subtype 0x13
+	[1][2][3][4][5][6][7][8]L	???Some int64???
 
 
 
