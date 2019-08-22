@@ -1129,7 +1129,7 @@ Request for emote
 	[1]		emote(0x01 - 0x0c)
 
 CLIENT  0xBC(0x34)  5
-Request for register quest
+Request for register quest (Will await for C0(A3/A4) packet with answer)
 	[0]				Subtype 0x34
 	[1][2]L   NPC ID
 	[3][4]L	  Quest ID
