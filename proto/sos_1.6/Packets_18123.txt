@@ -1133,6 +1133,7 @@ GuildAlliance:
 
 SERVER	0xC4(0x01)
 Set guild info
+	[0]				Subtyp 0x01
 	1Bt				Guild Name sz
 	[ ]...			Guild Name
 	1Bt				Guild master ID
@@ -1140,7 +1141,7 @@ Set guild info
 	8Bt				Kron (int64? or double?)
 	2Bt				Padding??? Not used
 	2Bt				Guild level (used only first byte)
-	1Bt				Members count?
+	1Bt				Members count? (max or online??)
 	1Bt				Notice sz
 	[ ]...			Notice text
 	1Bt				??? sz
@@ -1156,7 +1157,75 @@ Set guild info
 	1Bt				Number of items in guild bank
 	[ ]...			ItemSlot items (2Bt each)
 	
-	
+
+SERVER	0xC4(0x02) 7+
+Guild emblem
+	[0]				Subtyp 0x02
+	[1][2][3][4]L	Guild ID?
+	[5]				EmblemID?
+	[...]			Emblem Data
+
+
+SERVER	0xC4(0x03) 9
+Set guild Exp
+	[0]				Subtyp 0x03
+	[1][2][3][4][5][6][7][8]L	Guild exp (double or int64?)
+
+
+SERVER	0xC4(0x04) 9
+Set guild kron
+	[0]				Subtyp 0x04
+	[1][2][3][4][5][6][7][8]L	Guild kron (double or int64?)
+
+
+SERVER	0xC4(0x06) 2
+Set guild level
+	[0]				Subtyp 0x06
+	[1]				Guild Level
+
+
+SERVER	0xC4(0x08) 2
+Set guild member count(Max?? or online??)
+	[0]				Subtyp 0x08
+	[1]				Member count
+
+
+SERVER	0xC4(0x09) 
+Set guild Notice and ??? text
+	[0]				Subtyp 0x09
+	[1]				Notice text sz
+	[ ]...			Notice text
+	[ ]1Bt			??? text sz
+	[ ]...			??? text
+
+
+SERVER	0xC4(0x0A) 
+Add guild member to list
+	[0]				Subtyp 0x0A
+	[1]				Name sz (12max?)
+	[ ]...			Name
+	1Bt				???
+	1Bt				TitleID
+	2Bt				MapID
+
+
+SERVER	0xC4(0x0B) 
+Update guild member
+	[0]				Subtyp 0x0B
+	[1]				Member ID
+	[2]				??? field
+	[3]				TitleID
+	[4][5][6][7]	ExpGive? (float? or int32?)
+	[8][9][10][11]	MoneyGive? (float? or int32?)
+	[12][13]		MapID
+
+
+
+SERVER	0xC4(0x0C) 
+Update guild member field ???
+	[0]				Subtyp 0x0C
+	[1]				Member ID
+	[2]				??? field
 
 
 
