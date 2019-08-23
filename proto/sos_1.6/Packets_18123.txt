@@ -1105,10 +1105,17 @@ GuildMember:
 	1Bt				Name sz (12max?)
 	[ ]...			Name
 	1Bt				???
-	1Bt				TitleID
+	1Bt				TitleID (special IDs - 0xFF, 0xFE, 0xFD)
 	4Bt				ExpGive? (float? or int32?)
 	4Bt				MoneyGive? (float? or int32?)
 	2Bt				MapID
+
+If Master	  and TitleID == 0xFF - "Guild Master"
+If NOT Master and TitleID == 0xFF - "No title."
+If Master     and TitleID 0xFE - "n/a"
+If NOT Master and TitleID 0xFE - "Admission stand by"
+If                TitleID 0xFD - "Dismissal stand by"
+
 
 GuildTitles:
 	1Bt				Name sz (12max?)
