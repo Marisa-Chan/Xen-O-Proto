@@ -71,6 +71,8 @@
 ; [4][5]L    Codepage. (Text encoding codepage)
 ; [6][7]L    ??
 
+
+
 ******************************PAKETS*********************************
 ;#####PACKETS#######
 ;Generator	pkt(sub)	DataLength
@@ -1094,6 +1096,60 @@ MSGS:
 
 
 
+
+
+
+*****GUILD STAFF****
+
+GuildMember:
+	1Bt				Name sz (12max?)
+	[ ]...			Name
+	1Bt				???
+	1Bt				TitleID
+	4Bt				ExpGive? (float? or int32?)
+	4Bt				MoneyGive? (float? or int32?)
+	2Bt				MapID
+
+GuildTitles:
+	1Bt				Name sz (12max?)
+	[ ]...			Name
+	1Bt				TitleID
+	1Bt				Permissions
+
+GuildAlliance:
+	1Bt				Name sz (20max?)
+	[ ]...			Name
+	4Bt				??????Some ID???
+	
+
+
+
+SERVER	0xC4(0x01)
+Set guild info
+	1Bt				Guild Name sz
+	[ ]...			Guild Name
+	1Bt				Guild master ID
+	8Bt				Guild exp (int64? or double?)
+	8Bt				Kron (int64? or double?)
+	2Bt				Padding??? Not used
+	2Bt				Guild level (used only first byte)
+	1Bt				Members count?
+	1Bt				Notice sz
+	[ ]...			Notice text
+	1Bt				??? sz
+	[ ]...			??? text
+	1Bt				Number of members list
+	[ ]...			GuildMembers items
+	1Bt				Number of title list
+	[ ]...			GuildTitles items
+	1Bt				Number of alliance(Union) list
+	[ ]...			GuildAlliance items
+	1Bt				Number of guild skills
+	[ ]...			SkillID items (2Bt each)
+	1Bt				Number of items in guild bank
+	[ ]...			ItemSlot items (2Bt each)
+	
+	
 
 
 
