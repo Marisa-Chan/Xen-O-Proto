@@ -499,18 +499,6 @@ SERVER	0xC0(9)		5
 	[1][2][3][4]L	??????
 
 
-SERVER	0xC0(A)		5
-??????
-	[0]		Subtype 0xA
-	[1][2][3][4]L	??????
-
-
-SERVER	0xC0(B)		5
-??????
-	[0]		Subtype 0xB
-	[1][2][3][4]L	??????
-
-
 SERVER	0xC0(0x1A)	2
 Set player character level (w/o levelup effect)
 	[0]		Subtype 0x1A
@@ -688,53 +676,6 @@ Add/renew buff ( type >=0x20 and <0x2A ) (d'not touch skill slots in client)
 	[0]		Subtype 0x44
 	[1][2]L		SkillID
 	[3][4][5][6]L	Time
-
-
-SERVER  0xC0(0x45)	26+
-Flags: E?
-?????????
-	[0]		Subtype 0x45
-	[1]			?????	if == 2 or 18 -> Flag: E 
-	[ 2][ 3][ 4][ 5]L	?????
-	[ 6][ 7][ 8][ 9]L	?????
-	[10][11][12][13]L	?????
-	[14]........[23]	?????
-	[24]			?????
-	[25]			num
-	[+6] * num		num * 6 bytes  ?????
-	...
-	[ 1b ]			length
-	[ length bytes ]	some string (multiline?) ????
-
-
-SERVER  0xC0(0x46)	28+
-Flags:
-?????????
-	[0]		Subtype 0x46
-	[1]			?????
-	[2]			???not used???
-	[3]			size of not used thing??
-	[4]........[]		not used thing???
-	....
-	[ 0][ 1][ 2][ 3]L		?????
-	[ 4][ 5][ 6][ 7]L	?????
-	[ 8][ 9][10][11]L	?????
-	[12]........[21]	?????
-	[22]			?????
-	[23]			num
-	[+6] * num		num * 6 bytes  ?????
-	...
-	[ 1b ]			length
-	[ length bytes ]	some string (multiline?) ????
-
-
-SERVER	0xC0(0x47)	2+
-Flags:
-% s is the item is damaged during repair.
-	[0]		Subtype 0x47
-	[1]		Number of items
-	[+2] * num	Item ID
-	...
 
 
 SERVER	0xC0(0x4A)	10
