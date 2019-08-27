@@ -1,6 +1,6 @@
 mdlr:
 00000000 4C 41 4E 52  │  45 53 20 56  │  31 2E 30 1A  │  28 F3 31 01    LANRES V1.0.(.1.
-	 +---------------HEADER MAGIC--------------+     ???????????
+         +---------------HEADER MAGIC--------------+     ???????????
 
 00000010 00 00 00 00  │  02 00 00 00  │  28 00 00 00  │  E8 06 00 00    ........(.......
          ???????????   +-Num locales-+ +LCIDs offsets+  +Strings count+
@@ -8,7 +8,7 @@ mdlr:
 
 00000020 30 00 00 00  │  D0 1B 00 00  │  09 04 00 00  │  18 04 00 00    0...............
          +hash table+  +-Lcid offsets-+   +---LCID0--------LCID1-----+
-	    offset       
+          offset       
 
 Find string by STRID:
 1. Get strid from client, for example - INFO_ITS_SPEND
