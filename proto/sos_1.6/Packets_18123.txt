@@ -158,9 +158,9 @@ Do move map obj to XY with setted speed
 
 
 SERVER	0xB4		4
-?????????
-	[0]		Scope ID
-	[1]		?????????
+Object deletion
+	[0]			Scope ID
+	[1]			Type of disappear (1,3,9 - with glow effect,   0 and other - fade out)
 	[2][3]L		MAP obj ID
 
 
@@ -447,6 +447,86 @@ Kill object with disappear
 	[0]			0xFE
 	[1]			Scope ID 
 	[2][3]L		MAP obj ID
+
+
+
+
+
+
+SERVER	0xB4(0x11)		5+
+Public white msg from objid on map
+	[0]			0x11
+	[1]			Obj scope
+	[2][3]		Map obj ID
+	[4]			Msg len
+	[5...]		Msg
+
+
+SERVER	0xB4(0x12)		4+
+Whisper chat msg
+	[0]			0x12
+	[1]			0 - From, 1 - To
+	[2]			Name len
+	[3]			Msg len
+	[4...]		Name
+	[...]		Msg
+
+
+SERVER	0xB4(0x14)		3+
+Party chat msg
+	[0]			0x14
+	[1]			Name len
+	[2]			Msg len
+	[3...]		Name
+	[...]		Msg
+
+
+SERVER	0xB4(0x15)		3+
+Guild chat msg
+	[0]			0x15
+	[1]			Name len
+	[2]			Msg len
+	[3...]		Name
+	[...]		Msg
+
+
+SERVER	0xB4(0x1A)		2+
+Green "Notice" msg + chatlog
+	[0]			0x1A
+	[1]			Msg len
+	[2...]		Msg
+
+
+SERVER	0xB4(0x1B)		2+
+Orange sys msg(under of roulette).
+	[0]			0x1B
+	[1]			Msg len
+	[2...]		Msg
+
+
+SERVER	0xB4(0x1C)		2+
+Green "Notice" msg without chatlog
+	[0]			0x1C
+	[1]			Msg len
+	[2...]		Msg
+
+
+SERVER	0xB4(0x1F)		3+
+Blue text(SHOUT) in chat and char baloon on Player object
+	[0]			0x1F
+	[1]			PlayerObj name len
+	[2]			Msg len
+	[3...]		PlayerObj name
+	[...]		Msg
+
+
+SERVER	0xB4(0xA0)		2+
+Orange msg in chatlog
+	[0]			0xA0
+	[1]			Msg len
+	[2...]		Msg
+
+
 
 
 
