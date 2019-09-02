@@ -475,10 +475,10 @@ Set player info
 	[31-34]		pvpLose
 	[35-38]		pvpPoint
 	[39-42]		??? Seems not used
-	[43-44]		PetObjID1
-	[45-46]		PetObjID2
+	[43-44]		PetObjID1 (will be erased after receive)
+	[45-46]		PetObjID2 (will be erased after receive)
 	[47-48]		mSlot
-	[49-160]	ItemSlot * 14 (Last two - some special equip?)
+	[49-160]	ItemSlot * 14 (12 normal, 13th - mix wear, 14th - mix head)
 	[161-176]	??? Seems not used
 	[177]		Rulet 1
 	[178]		Rulet 2
@@ -1047,6 +1047,66 @@ Call PowerLevel functions
 
 
 
+SERVER	0xC0(0xAA)	4
+Flags: 
+Answer for lua "Coupon:Use".
+	[0]				Subtype 0xAA
+	[1]				Answer result (if 0 - show pkg description if Coupon:Use was called)
+	[2][3]			GIPKG ID. Sets lua "Coupon:GetLastPkgID"
+
+
+SERVER	0xC0(0xAB)	3
+Flags: 
+Show GIPKG
+	[0]				Subtype 0xAB
+	[1][2]			GIPKG ID
+
+
+SERVER	0xC0(0xB0)	4
+Flags: E
+Summon pet (set PetObjID1 and after PetObjID2 if it's not set)
+	[0]				Subtype 0xB0
+	[1][2]			Pet obj id (id on map)
+	[3]				if 0 - show msg "[Notice] Pet has been summoned."
+
+
+SERVER	0xC0(0xB1)	4
+Flags: E
+Return pet (reset PetObjID1 or PetObjID2 if matched)
+	[0]				Subtype 0xB1
+	[1][2]			Pet obj id
+	[3]				if 0 - show msg "[Notice] Pet returned."
+
+
+SERVER	0xC0(0xB2)	2
+Flags: E
+??? Not used ???
+	[0]				Subtype 0xB2
+	[1]				???
+
+
+SERVER	0xC0(0xB3)	3
+Flags:
+Set PetObjID1 (only it) silently and without of checks
+	[0]				Subtype 0xB3
+	[1][2]			Pet obj id
+
+
+SERVER	0xC0(0xB4)	4
+Flags:
+Set flag(movement?? 0 or 1?? ) of PetObjID1 or PetObjID2 of player
+	[0]				Subtype 0xB4
+	[1][2]			Pet obj id
+	[3]				flag
+
+
+SERVER	0xC0(0xB5)	2+
+Flags:
+Set player's partner name. Lua "Player:GetPartner".
+	[0]				Subtype 0xB5
+	[1]				Name length
+	[2...]			Name
+
 
 
 SERVER	0xC0(0xC1)
@@ -1069,24 +1129,38 @@ MSGS:
 
 
 
-SERVER	0xC0(0xAA) TODO
-SERVER	0xC0(0xAB) TODO
-SERVER	0xC0(0xB0) TODO
-SERVER	0xC0(0xB1) TODO
-SERVER	0xC0(0xB2) TODO
-SERVER	0xC0(0xB3) TODO
-SERVER	0xC0(0xB5) TODO
+SERVER	0xC0(0xC9)	3+
+Flags:
+"Receive Memo" popup
+	[0]				Subtype 0xC9
+	[1]				Memo length
+	[2...]			Memo
+
+
+
+SERVER	0xC0(0xE0)	9
+Flags: E
+Equip/unequip wear slot in mix mode.
+	[0]				Subtype 0xE0
+	[1-8]			ItemSlot
+
+
+SERVER	0xC0(0xE1)	9
+Flags: E
+Equip/unequip head slot in mix mode.
+	[0]				Subtype 0xE1
+	[1-8]			ItemSlot
+
+
+
 SERVER	0xC0(0xC0) TODO
 SERVER	0xC0(0xC2) TODO
-SERVER	0xC0(0xC9) TODO
-SERVER	0xC0(0xD0) TODO
-SERVER	0xC0(0xD1) TODO
-SERVER	0xC0(0xD2) TODO
-SERVER	0xC0(0xD3) TODO
-SERVER	0xC0(0xD4) TODO
-SERVER	0xC0(0xD5) TODO
-SERVER	0xC0(0xE0) TODO
-SERVER	0xC0(0xE1) TODO
+SERVER	0xC0(0xD0) TODO //HOUSING
+SERVER	0xC0(0xD1) TODO //HOUSING
+SERVER	0xC0(0xD2) TODO //HOUSING
+SERVER	0xC0(0xD3) TODO //HOUSING
+SERVER	0xC0(0xD4) TODO //HOUSING
+SERVER	0xC0(0xD5) TODO //HOUSING
 
 
 
