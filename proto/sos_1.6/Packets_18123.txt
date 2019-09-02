@@ -453,7 +453,7 @@ Kill object with disappear
 
 
 
-SERVER	0xB4(0x11)		5+
+SERVER	0xBA(0x11)		5+
 Public white msg from objid on map
 	[0]			0x11
 	[1]			Obj scope
@@ -462,7 +462,7 @@ Public white msg from objid on map
 	[5...]		Msg
 
 
-SERVER	0xB4(0x12)		4+
+SERVER	0xBA(0x12)		4+
 Whisper chat msg
 	[0]			0x12
 	[1]			0 - From, 1 - To
@@ -472,7 +472,7 @@ Whisper chat msg
 	[...]		Msg
 
 
-SERVER	0xB4(0x14)		3+
+SERVER	0xBA(0x14)		3+
 Party chat msg
 	[0]			0x14
 	[1]			Name len
@@ -481,7 +481,7 @@ Party chat msg
 	[...]		Msg
 
 
-SERVER	0xB4(0x15)		3+
+SERVER	0xBA(0x15)		3+
 Guild chat msg
 	[0]			0x15
 	[1]			Name len
@@ -490,28 +490,28 @@ Guild chat msg
 	[...]		Msg
 
 
-SERVER	0xB4(0x1A)		2+
+SERVER	0xBA(0x1A)		2+
 Green "Notice" msg + chatlog
 	[0]			0x1A
 	[1]			Msg len
 	[2...]		Msg
 
 
-SERVER	0xB4(0x1B)		2+
+SERVER	0xBA(0x1B)		2+
 Orange sys msg(under of roulette).
 	[0]			0x1B
 	[1]			Msg len
 	[2...]		Msg
 
 
-SERVER	0xB4(0x1C)		2+
+SERVER	0xBA(0x1C)		2+
 Green "Notice" msg without chatlog
 	[0]			0x1C
 	[1]			Msg len
 	[2...]		Msg
 
 
-SERVER	0xB4(0x1F)		3+
+SERVER	0xBA(0x1F)		3+
 Blue text(SHOUT) in chat and char baloon on Player object
 	[0]			0x1F
 	[1]			PlayerObj name len
@@ -520,7 +520,7 @@ Blue text(SHOUT) in chat and char baloon on Player object
 	[...]		Msg
 
 
-SERVER	0xB4(0xA0)		2+
+SERVER	0xBA(0xA0)		2+
 Orange msg in chatlog
 	[0]			0xA0
 	[1]			Msg len
