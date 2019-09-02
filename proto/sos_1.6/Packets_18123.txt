@@ -451,6 +451,39 @@ Kill object with disappear
 
 
 
+SERVER	0xC0(0)		0xB4
+Flags:	E
+Set player info
+	[0]			Subtype 0x0
+	[1-8]		Kron number
+	[9]			Disable bits
+	[10]		Job
+	[11]		Hair
+	[12-13]		HP
+	[14-15]		MP
+	[16]		Level
+	[17-18]		Exp
+	[19]		StatusPoints
+	[20]		SkillPoints
+	[21]		POW
+	[22]		INT
+	[23]		STA
+	[24]		AGI
+	[25]		MEN
+	[26]		WIS
+	[27-30]		pvpWin
+	[31-34]		pvpLose
+	[35-38]		pvpPoint
+	[39-42]		??? Seems not used
+	[43-44]		PetObjID1
+	[45-46]		PetObjID2
+	[47-48]		mSlot
+	[49-160]	ItemSlot * 14 (Last two - some special equip?)
+	[161-176]	??? Seems not used
+	[177]		Rulet 1
+	[178]		Rulet 2
+	[179]		Rulet 3
+
 
 
 SERVER	0xC0(1)		9
@@ -474,9 +507,9 @@ Change player info character Job
 
 
 SERVER	0xC0(4)		2
-??????
+Set Hair
 	[0]		Subtype 0x4
-	[1]		??????
+	[1]		hair
 
 
 SERVER	0xC0(5)		3
@@ -494,7 +527,7 @@ Set player current MP
 
 
 SERVER	0xC0(9)		5
-??????
+??????Not used??????
 	[0]		Subtype 0x9
 	[1][2][3][4]L	??????
 
@@ -542,15 +575,15 @@ Set player character MEN
 
 
 SERVER	0xC0(0x26)	3
-????????
+Set player character WIS
 	[0]		Subtype 0x26
 	[1][2]L		????????
 
 
-SERVER	0xC0(0x2F)	3
+SERVER	0xC0(0x2F)	2
 Set count of free status points
 	[0]		Subtype 0x2F
-	[1][2]L		Status points
+	[1]		Status points
 
 
 SERVER	0xC0(0x31)	2+
@@ -697,7 +730,7 @@ SERVER	0xC0(0x4C)	3
 Flags: E
 Spent/deliver item in party
 	[0]		Subtype 0x4C
-	[1]		0 - delete item without chatlog, 0xD0 - deliver msg(msg for type <0x20), 0xD1 - Discarded msg, 0xD2 - Deleted msg, 0xD3 - Used msg
+	[1]		0 - delete item without chatlog (TO GUILD), 0xD0 - deliver msg(msg for type <0x20), 0xD1 - Discarded msg, 0xD2 - Deleted msg, 0xD3 - Used msg
 	[2]..8bt..[9]	ItemSlot
 
 
@@ -725,9 +758,9 @@ Learn(with chatlog)/Delete skill
 
 SERVER  0xC0(0x52)	2
 Flags: E
-Set ???? of player
+Set skill points of player
 	[0]		Subtype 0x52
-	[1]		?????
+	[1]		skill points
 
 
 SERVER  0xC0(0x60)	9
@@ -1036,7 +1069,129 @@ MSGS:
 
 
 
+SERVER	0xC0(0xAA) TODO
+SERVER	0xC0(0xAB) TODO
+SERVER	0xC0(0xB0) TODO
+SERVER	0xC0(0xB1) TODO
+SERVER	0xC0(0xB2) TODO
+SERVER	0xC0(0xB3) TODO
+SERVER	0xC0(0xB5) TODO
+SERVER	0xC0(0xC0) TODO
+SERVER	0xC0(0xC2) TODO
+SERVER	0xC0(0xC9) TODO
+SERVER	0xC0(0xD0) TODO
+SERVER	0xC0(0xD1) TODO
+SERVER	0xC0(0xD2) TODO
+SERVER	0xC0(0xD3) TODO
+SERVER	0xC0(0xD4) TODO
+SERVER	0xC0(0xD5) TODO
+SERVER	0xC0(0xE0) TODO
+SERVER	0xC0(0xE1) TODO
 
+
+
+
+
+
+
+
+
+SERVER	0xC3(0x01)	5
+Msg "[Number of people connected to game server] current %d. max %d"
+	[0]				Subtyp 0x01
+	[1][2]			Current
+	[3][4]			Max
+
+
+SERVER	0xC3(0x02)	9
+Msg "[Total No. of people connected to the server] current %d. max %d"
+	[0]				Subtyp 0x02
+	[1][2][3][4]	Current
+	[5][6][7][8]	Max
+
+
+SERVER	0xC3(0x03)	2
+Msg "DECEXPRATE : %d %%"
+	[0]				Subtyp 0x03
+	[1]				Rate
+
+
+SERVER	0xC3(0x04)	3
+Msg "MAPEXPRATE : %d %%, SVREXPRATE : %d %%"
+	[0]				Subtyp 0x04
+	[1]				Map Rate
+	[2]				Server Rate
+
+
+SERVER	0xC3(0x05)	3
+Msg "[NPC added] Granted server index %d"
+	[0]				Subtyp 0x05
+	[1][2]			ID
+
+
+SERVER	0xC3(0x06)	3
+Msg "Current map users : %d"
+	[0]				Subtyp 0x06
+	[1][2]			Users count
+
+
+SERVER	0xC3(0x10)	3
+Set buy/sell price modify
+	[0]				Subtyp 0x10
+	[1]				Buy price modify (100 == 1.0)
+	[2]				Sell price modify (100 == 1.0)
+
+
+SERVER	0xC3(0x20)	109+
+Show character info window (GM window)
+	[0]			Subtp 0x20
+	[1-4]		Users IP (inet_ntoa)
+	[5-8]		Map ID
+	[9-105]		ItemSlot * 12 for equipped gear (Tab B)
+	[106]		level
+	[107]		name length
+	[108]		Account name length
+	[109-...]	Character name
+	[...]		Account name
+
+
+SERVER	0xC3(0x21)	2+
+Set S-items in char info
+	[0]			Subtp 0x21
+	[1]			Number of items
+	[2-...]		ItemSlot * Num
+
+
+SERVER	0xC3(0x22)	2+
+Set M-items in char info
+	[0]			Subtp 0x22
+	[1]			Number of items
+	[2-...]		ItemSlot * Num
+
+
+SERVER	0xC3(0x23)	2+
+Set O-items in char info
+	[0]			Subtp 0x23
+	[1]			Number of items
+	[2-...]		ItemSlot * Num
+
+
+SERVER	0xC3(0x24)	2+
+Set C-items in char info
+	[0]			Subtp 0x24
+	[1]			Number of items
+	[2-...]		ItemSlot * Num
+
+
+SERVER	0xC3(0x2F)	109+
+Show target player info
+	[0]			Subtp 0x2F
+	[1]			Level
+	[2]			Job
+	[3-98]		ItemSlot * 12 for equipped gear
+	[99-108]	CharacterView bytes
+	[109]		name length
+	[110-...]	Character name
 
 
 
@@ -1047,9 +1202,9 @@ GuildMember:
 	[ ]...			Name
 	1Bt				???
 	1Bt				TitleID (special IDs - 0xFF, 0xFE, 0xFD)
-	4Bt				ExpGive? (float? or int32?)
-	4Bt				MoneyGive? (float? or int32?)
-	2Bt				MapID
+	4Bt				ExpGive (float)
+	4Bt				MoneyGive (int)
+	2Bt				MapID (no map ID - offline)
 
 If Master	  and TitleID == 0xFF - "Guild Master"
 If NOT Master and TitleID == 0xFF - "No title."
@@ -1077,7 +1232,7 @@ Set guild info
 	[0]				Subtyp 0x01
 	1Bt				Guild Name sz
 	[ ]...			Guild Name
-	1Bt				Guild master ID
+	1Bt				Guild master ID (in members list)
 	8Bt				Guild exp (int64? or double?)
 	8Bt				Kron (int64? or double?)
 	2Bt				Padding??? Not used
@@ -1271,6 +1426,17 @@ Hello message on connect. !!!!!!!!!!!!!!!!!!!!!!!!
 	[..]..[..] Charname  
 
 
+
+CLIENT	0xC4(0x14) 9
+Request to stor item into guild bank
+	[0]			Subtype 0x14
+	[1]...[8]	ItemSlot
+
+
+CLIENT	0xC4(0xD2) 9
+Request to withdraw item from guild bank
+	[0]			Subtype 0xD2
+	[1]...[8]	ItemSlot
 
 
 CLIENT	0xC9(0x10) 6+
