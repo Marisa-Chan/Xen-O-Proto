@@ -945,6 +945,13 @@ Set backpack item ID
 	[1][2]L		Backpack item ID
 
 
+SERVER  0xC0 (0x6F)	2
+Flags: E
+Smelt result
+	[0]		0x6F
+	[1]		Result (0 - fail, 1 - succ)
+
+
 SERVER  0xC0(0x70)	2+
 Flags: E
 Set map ??? points list???
@@ -1504,6 +1511,30 @@ Delete ItemSlot from guild bank (and update guild charge form)
 	[0]				Subtyp 0x1A
 	[1]...[8]		ItemSlot
 	[9]				Type of Item. Used to check identity. (Type of item. 0xA offset in GITMINF records)
+
+
+
+
+
+
+SERVER	0xC5(0x01)	3
+Set ClientBuffer size
+	[0]			0x1
+	[1][2]		Size (max 1024)	
+
+
+
+SERVER	0xC5(0x02)	3
+Set ClientBuffer position
+	[0]			0x2
+	[1][2]		Position
+
+
+SERVER	0xC5(0x03)	2+
+Write into ClientBuffer
+	[0]			0x3
+	[1]			Bytes number
+	[2...]		Bytes to write
 
 
 
