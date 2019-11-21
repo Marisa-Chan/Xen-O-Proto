@@ -7,26 +7,26 @@ import (
 )
 
 type TDra struct {
-	Items []*TItem
-	Strm *os.File
+	items []*TItem
+	strm *os.File
 }
 
 func NewDra(filename string)(*TDra) {
 	var tmp = new(TDra)
-	tmp.Strm , _ = os.Open(filename)
+	tmp.strm , _ = os.Open(filename)
 	
-	tmp.Strm.Seek(0x10, 0)
+	tmp.strm.Seek(0x10, 0)
 	
-	var num = FreadLU32(tmp.Strm)
+	var num = FreadLU32(tmp.strm)
 	
-	tmp.Strm.Seek(1, 1)
+	tmp.strm.Seek(1, 1)
 	
 	for i := 0; i < int(num); i++ {
-		var iid = FreadLU32(tmp.Strm)
-		var iof = FreadLU32(tmp.Strm)
+		var iid = FreadLU32(tmp.strm)
+		var iof = FreadLU32(tmp.strm)
 		
 		if iof != 0 {
-			tmp.Items = append(tmp.Items, &TItem{iid, iof, 0} )
+			tmp.items = append(tmp.items, &TItem{iid, iof, 0} )
 		}
 	}
 		
@@ -34,19 +34,23 @@ func NewDra(filename string)(*TDra) {
 }
 
 func (t *TDra) ReadItem(itm *TItem) ([]byte) {
-	t.Strm.Seek(int64(itm.off) + 4, 0)
-	var decsz = FreadLU32(t.Strm)
-	var _ = FreadLU32(t.Strm) //compsz
+	t.strm.Seek(int64(itm.off) + 4, 0)
+	var decsz = FreadLU32(t.strm)
+	var _ = FreadLU32(t.strm) //compsz
 
 	var out = make([]byte, decsz)
 	
-	if FreadU8(t.Strm) == 1 {
-		var rd, _ = zlib.NewReader( t.Strm )
+	if FreadU8(t.strm) == 1 {
+		var rd, _ = zlib.NewReader( t.strm )
 		io.ReadFull(rd, out)
 		rd.Close()
 	} else {
-		t.Strm.Read(out)
+		t.strm.Read(out)
 	}
 		
 	return out
+}
+
+func (t *TDra) Items() ([]*TItem) {
+	return t.items
 }

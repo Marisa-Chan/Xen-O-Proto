@@ -10,8 +10,8 @@ import (
 )
 
 type TEra struct {
-	Items []*TItem
-	Strm *os.File
+	items []*TItem
+	strm *os.File
 	shift uint
 }
 
@@ -19,31 +19,31 @@ type TEra struct {
 
 func NewEra(filename string, not_shift bool)(*TEra) {
 	var tmp = new(TEra)
-	tmp.Strm , _ = os.Open(filename)
+	tmp.strm , _ = os.Open(filename)
 	tmp.shift = 0
 	
 	//var fsz, _ = tmp.Strm.Seek(0, 2)
-	tmp.Strm.Seek(0x14, 0)
+	tmp.strm.Seek(0x14, 0)
 	
-	var num = FreadLU32(tmp.Strm)
-	var off = FreadLU32(tmp.Strm)
+	var num = FreadLU32(tmp.strm)
+	var off = FreadLU32(tmp.strm)
 	
-	var d, _ = Fread(tmp.Strm, 4)
+	var d, _ = Fread(tmp.strm, 4)
 	
 	if !not_shift {
 		tmp.shift = uint(d[2])
 	}
 	
-	tmp.Strm.Seek(int64(off), 0)
+	tmp.strm.Seek(int64(off), 0)
 	
 	var t []byte
 	
 	if d[0] == 1 {
-		var rd, _ = zlib.NewReader( tmp.Strm )
+		var rd, _ = zlib.NewReader( tmp.strm )
 		t, _ = ioutil.ReadAll( rd )
 		rd.Close()
 	} else {
-		t, _ = ioutil.ReadAll( tmp.Strm )
+		t, _ = ioutil.ReadAll( tmp.strm )
 	}
 	
 	var s = bytes.NewReader(t)
@@ -53,7 +53,7 @@ func NewEra(filename string, not_shift bool)(*TEra) {
 		var iof = FreadLU32(s)
 		
 		if iof != 0 && iof < off {
-			tmp.Items = append(tmp.Items, &TItem{iid, iof, 0} )
+			tmp.items = append(tmp.items, &TItem{iid, iof, 0} )
 		}
 	}
 	
@@ -63,17 +63,17 @@ func NewEra(filename string, not_shift bool)(*TEra) {
 
 
 func (t *TEra) ReadItem(itm *TItem) ([]byte) {
-	t.Strm.Seek(int64(itm.off), 0)
-	var decsz = FreadLU32(t.Strm)
-	var _ = FreadLU32(t.Strm) //compsz
+	t.strm.Seek(int64(itm.off), 0)
+	var decsz = FreadLU32(t.strm)
+	var _ = FreadLU32(t.strm) //compsz
 	
 	var d = make([]byte, decsz)
-	if FreadU8(t.Strm) == 1 {
-		var rd, _ = zlib.NewReader( t.Strm )
+	if FreadU8(t.strm) == 1 {
+		var rd, _ = zlib.NewReader( t.strm )
 		io.ReadFull(rd, d)
 		rd.Close()
 	} else {
-		t.Strm.Read(d)
+		t.strm.Read(d)
 	}
 	
 	if t.shift != 0 {
@@ -99,4 +99,8 @@ func (t *TEra) ReadItem(itm *TItem) ([]byte) {
 	}
 	
 	return d
+}
+
+func (t *TEra) Items() ([]*TItem) {
+	return t.items
 }

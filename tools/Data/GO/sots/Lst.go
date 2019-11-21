@@ -12,8 +12,8 @@ import (
 type TLst struct {
 	arrs int
 	lastarr int
-	Items []*TItem
-	Strm *os.File
+	items []*TItem
+	strm *os.File
 	path string
 }
 
@@ -24,7 +24,7 @@ func NewLst(filepath string)(*TLst) {
 	tmp.arrs = 0
 	tmp.lastarr = -1
 	tmp.path = ""
-	tmp.Strm = nil
+	tmp.strm = nil
 	
 	var ext = path.Ext(filepath)
 	tmp.path = filepath[:len(filepath) - len(ext)]
@@ -42,7 +42,7 @@ func NewLst(filepath string)(*TLst) {
 		var iof = FreadLU32(strm)
 		var iar = FreadU8(strm)
 		
-		tmp.Items = append(tmp.Items, &TItem{iid, iof, int(iar)} )
+		tmp.items = append(tmp.items, &TItem{iid, iof, int(iar)} )
 	}
 	
 	strm.Close()
@@ -53,8 +53,8 @@ func NewLst(filepath string)(*TLst) {
 func (t *TLst) ReadItem(itm *TItem) ([]byte) {
 
 	if t.lastarr != itm.arr {
-		if t.Strm != nil {
-			t.Strm.Close()
+		if t.strm != nil {
+			t.strm.Close()
 		}
 		
 		var pth string
@@ -65,26 +65,28 @@ func (t *TLst) ReadItem(itm *TItem) ([]byte) {
 			pth = fmt.Sprintf("%s.DRA", t.path)
 		}
 		
-		t.Strm, _ = os.Open(pth)
+		t.strm, _ = os.Open(pth)
 		t.lastarr = itm.arr
 	}
 	
-	t.Strm.Seek(int64(itm.off) + 4, 0)
-	var decsz = FreadLU32(t.Strm)
-	var _ = FreadLU32(t.Strm) //compsz
+	t.strm.Seek(int64(itm.off) + 4, 0)
+	var decsz = FreadLU32(t.strm)
+	var _ = FreadLU32(t.strm) //compsz
 
 	var out = make([]byte, decsz)
 	
-	if FreadU8(t.Strm) == 1 {
-		var rd, _ = zlib.NewReader( t.Strm )
+	if FreadU8(t.strm) == 1 {
+		var rd, _ = zlib.NewReader( t.strm )
 		io.ReadFull(rd, out)
 		rd.Close()
 	} else {
-		t.Strm.Read(out)
+		t.strm.Read(out)
 	}
 		
 	return out
 }
 
 
-
+func (t *TLst) Items() ([]*TItem) {
+	return t.items
+}

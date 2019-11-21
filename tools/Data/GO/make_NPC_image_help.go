@@ -19,7 +19,7 @@ func makeNPC_BodyList(eye int, state int) []*bdid {
 
 	var items []*bdid
 	
-	for _, elm := range arc.Items {
+	for _, elm := range arc.Items() {
 		if (elm.ID & 0xE0) == uint32( (eye << 5) | (state & 0x1F) ) {
 			var itmInf = arc.ReadItem(elm)
 			var t = new(bdid)
@@ -35,7 +35,7 @@ func makeNPC_BodyList(eye int, state int) []*bdid {
 
 func makeFrameIDS(st []*bdid, frame int) {
 	var arc = sots.NewDra( "GNBID.DRA" )
-	for _, elm := range arc.Items {
+	for _, elm := range arc.Items() {
 		for _, n := range st {
 			if elm.ID == n.bid {
 				var mm = arc.ReadItem(elm)
@@ -66,7 +66,7 @@ func main() {
 		os.Mkdir(outDIR, os.ModePerm)
 	}
 	
-	for _,elm := range arc.Items {
+	for _,elm := range arc.Items() {
 		var i *bdid = nil
 	
 		for idx,n := range d {
