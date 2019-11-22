@@ -64,16 +64,19 @@ func NewEra(filename string, not_shift bool)(*TEra) {
 
 func (t *TEra) ReadItem(itm *TItem) ([]byte) {
 	t.strm.Seek(int64(itm.off), 0)
-	var decsz = FreadLU32(t.strm)
-	var _ = FreadLU32(t.strm) //compsz
+	var _ = FreadLU32(t.strm)
+	var compsz = FreadLU32(t.strm)
 	
-	var d = make([]byte, decsz)
+	var d = make([]byte, compsz)
 	if FreadU8(t.strm) == 1 {
-		var rd, _ = zlib.NewReader( t.strm )
-		io.ReadFull(rd, d)
+		io.ReadFull(t.strm, d)
+		
+		var br = bytes.NewReader(d)
+		var rd, _ = zlib.NewReader( br )
+		d, _ = ioutil.ReadAll(rd)
 		rd.Close()
 	} else {
-		t.strm.Read(d)
+		io.ReadFull(t.strm, d)
 	}
 	
 	if t.shift != 0 {
