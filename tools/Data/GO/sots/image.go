@@ -186,3 +186,11 @@ func GetImageType3(itm []byte) image.Image {
 	
 	return decodeImage(itm[8:], w, h, tp, parts)
 }
+
+//GSkill GItem
+func GetImageIcon(itm []byte) image.Image {
+	var w = int( binary.LittleEndian.Uint16(itm[0:2]) )
+	var h = int( binary.LittleEndian.Uint16(itm[2:4]) )
+	
+	return decodeImage(itm[8:], w, h, 0, 1)
+}
