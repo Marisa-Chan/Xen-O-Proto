@@ -194,3 +194,87 @@ func GetImageIcon(itm []byte) image.Image {
 	
 	return decodeImage(itm[8:], w, h, 0, 1)
 }
+
+
+
+
+func encodeImage(img image.Image, mode int) ([]byte, int) {
+	var w int = img.Bounds().Dx()
+	var h int = img.Bounds().Dy()
+	var itm []byte
+	var pos image.Point
+	var parts int = 0
+	
+	for w > 0 {
+		var dx = pow2close(w)
+		pos.Y = 0
+		
+		for _h := h; _h > 0;{
+			var dy = pow2close(_h)
+			
+			
+			for wy := pos.Y; wy < pos.Y + dy; wy++ {
+				for wx := pos.X; wx < pos.X + dx; wx++ {
+					pixel := img.At(wx, wy)				
+					clr := color.NRGBAModel.Convert(pixel).(color.NRGBA)
+					switch(mode) {
+					case 7:
+						itm = append(itm, uint8(clr.B))
+						itm = append(itm, uint8(clr.G))
+						itm = append(itm, uint8(clr.R))
+						itm = append(itm, uint8(clr.A))
+					case 0:
+						itm = append(itm, uint8( (clr.A / 17) | ((clr.B / 17) << 4) ) )
+						itm = append(itm, uint8( (clr.G / 17) | ((clr.R / 17) << 4) ) )					
+					case 1:
+						var c uint16 = ((uint16(float32(clr.B) / 8.23) & 0x1F) << 1) |
+						               ((uint16(float32(clr.G) / 8.23) & 0x1F) << 6) |
+									   ((uint16(float32(clr.R) / 8.23) & 0x1F) << 11)
+						
+						if clr.A > 178 {
+							c |= 1
+						}
+						
+						itm = append(itm, uint8( c & 0xFF ) )
+						itm = append(itm, uint8( (c >> 8) & 0xFF ) )
+												
+					case 2:
+						itm = append(itm, uint8(clr.R))
+						itm = append(itm, uint8(clr.G))
+						itm = append(itm, uint8(clr.B))
+						itm = append(itm, uint8(clr.A))
+						
+					case 5:
+						itm = append(itm, uint8( (clr.B / 17) | ((clr.G / 17) << 4) ) )
+						itm = append(itm, uint8( (clr.R / 17) | ((clr.A / 17) << 4) ) )	
+						
+					default:
+						
+					}
+				}
+			}
+			
+			parts++
+			
+			pos.Y += dy
+			_h -= dy
+		}
+		
+		pos.X += dx
+		w -= dx
+	}
+	return itm, parts
+}
+
+
+func MakeImageType3(img image.Image, mode int) []byte {
+	var tmp []byte = fastGetBtLU16(mode)
+	
+	itm, parts := encodeImage(img, mode)
+	
+	tmp = append(tmp, fastGetBtLU16(parts)...)
+	tmp = append(tmp, fastGetBtLU16(img.Bounds().Dx())...)
+	tmp = append(tmp, fastGetBtLU16(img.Bounds().Dy())...)
+	tmp = append(tmp, itm...)
+	return tmp
+}
