@@ -39,6 +39,8 @@ def main():
 		print("cfiles - compress files (0,1)")
 		print("cp | cpage | codepage - codepage of text (default 437)")
 		print("l | lvl | level - compression level (0-9,-1  default -1)")
+		print("tbl - additional ID-ID table file")
+		print("ctbl - compress ID-ID table (0,1)")
 		print("")
 		print("Example: script.py -o=out.era -s=4 -clist=1 /dir/with/files")
 		print("")
@@ -51,6 +53,8 @@ def main():
 	codepage = 437
 	level = -1
 	indir = ""
+	idtable = ""
+	ctbl = 1
 	dr = None
 	
 	rg = re.compile("-(.+)=(.+)")
@@ -74,6 +78,12 @@ def main():
 					cfiles = 1
 			elif (op == "codepage" or op == "cpage" or op == "cp"):
 				codepage = int(val)
+			elif (op == "tbl"):
+				idtable = val
+			elif (op == "ctbl"):
+				ctbl = int(val)
+				if (ctbl != 0):
+					ctbl = 1
 			elif (op == "l" or op == "lvl" or op == "level"):
 				level = int(val)
 				if level < -1 or level > 9:
@@ -153,9 +163,31 @@ def main():
 		contlst = zlib.compress(contlst, level=level)
 	
 	outfile.write( contlst )
-	
+		
 	outfile.seek(0x18)
 	outfile.write( contoff.to_bytes(4, byteorder = "little") )
+	
+	if (idtable != ""):
+		print("Adding:", idtable)
+		tbf = open(idtable, "rb")
+		t = tbf.read()
+		tbf.close()
+		if (len(t) > 0 and ((len(t) & 7) == 0)):
+			tnum = len(t) // 8
+			
+			if (ctbl != 0):
+				t = zlib.compress(t, level=level)
+			
+			outfile.seek(0, 2)
+			tbl2off = outfile.tell()
+			
+			outfile.write(t)
+			outfile.seek(0x1F)
+			outfile.write( tnum.to_bytes(4, byteorder = "little") )
+			outfile.write( tbl2off.to_bytes(4, byteorder = "little") )
+			outfile.write( ctbl.to_bytes(1, byteorder = "little") )
+		else:
+			print("Invalid size, not mod of 8")
 	
 	
 	outfile.close()

@@ -18,6 +18,7 @@ class TEra:
 	shift = 0
 	items = None
 	strm = None
+	tabl = None
 	
 	def __init__(self, fpath, shifter = True):
 		self.items = list()
@@ -60,6 +61,22 @@ class TEra:
 			
 		del s
 		del t
+		
+		self.strm.seek(0x1F)
+		num2 = int.from_bytes( self.strm.read(4), byteorder="little" )
+		off2 = int.from_bytes( self.strm.read(4), byteorder="little" )
+		
+		cc = self.strm.read(1)[0]
+		
+		if (num2 > 0 and off2 < fsz):
+			self.strm.seek(off2)
+			
+			if cc == 1:
+				self.tabl = zlib.decompress(self.strm.read(fsz - off2))
+			else:
+				self.tabl = self.strm.read(num2 * 8)
+		
+		
 	
 	def readItem(self, itm):
 		self.strm.seek(itm.off)
@@ -243,6 +260,11 @@ def main():
 		s.write( arc.readItem(elm) )
 		s.close()
 		i += 1
+	
+	if (tp == "ERA" and arc.tabl != None):
+		t = open("extract_" + os.path.basename(fl) + ".table", "wb")
+		t.write(arc.tabl)
+		t.close()
 
 if __name__ == "__main__":
 	main()
